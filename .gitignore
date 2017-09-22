@@ -8,7 +8,7 @@ timings/*
 server.properties
 pocketmine.yml
 *.txt
-genisys.yml
+voidpe.yml
 crashdumps/*
 resource_packs/*
 *.db
