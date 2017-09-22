@@ -25,14 +25,14 @@ notifications:
   email: false
 
 before_deploy:
- - mv plugins/GenisysPro/GenisysPro*.phar plugins/GenisysPro/GenisysPro.phar
+ - mv plugins/TheVoidPE/TheVoidPE*.phar plugins/TheVoidPE/TheVoidPE.phar
 
 deploy:
   - provider: releases
     api_key:
       secure: 1odWTasf1b9ypbGNF9okBTBGBXbErfXg4r/OzzRskB9o0UzK/G90cwrfGGdjQgM9rao4IQ6qSsZCTPGODsot7ATQeofKYjM8ToPDKe8gzMuro8D1nDdLQoajb5ZQVl0Uc6X+WSpCR8Q46jtp3lKP44Xd3cZzObfJfESSatq3vFkOFsRUtyrLFlo2qrGARuglELG/wTxkkptxnmzRKFJC/FCJRQVYOsEkhnbc4dittKfLsrvdcpt70vc4CflqiBMoUt3tpvKSOdg05jYGtXOjUSRg7yJEvIQWmjTlS7VE3iPsjNEopBTUpbGDhAx9zqMTzCC+Lz3PqHet4wZt2qfF1LdUnCSLV1jYSN2O2Um8rknJdDK/xV0CvXbhQwBpbNKfoIPXh28hmeNW2MJufZCcSFcjNnK4Dvr5JtF2ZPI3XHSS/slXGk7PlNZiGxtYOzaQ7BBuaEIxJv16sgObnNKyq66llcx8K1rfkTHgZ+RIBpTv9JDZQ0BFd+ip7MXEO38mhz2pquFKSglxRemMkC1i6Jcd602clYpQHsA92EZYPLjOzFHA1nPSWSs0gZhrY1dOW5vtEOzjFc71tLWOo6QlkeDAKemqygyeH7uGHZY0iJgC8BREaEOBnqUCzWHlHycqsX7YdAOyhlvBeUPvwHfwp1dN7/JQuxJ6FgNfV/PRsGk=
     file_glob: true
-    file: plugins/GenisysPro/*
+    file: plugins/TheVoidPE/*
     skip_cleanup: true
     on:
       tags: true
