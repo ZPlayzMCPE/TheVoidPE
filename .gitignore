@@ -1,25 +1,34 @@
-# CakePHP 3
+players/*
+worlds/*
+plugins/*
+bin/*
+timings/*
+*.log
+*.phar
+server.properties
+pocketmine.yml
+*.txt
+voidpe.yml
+crashdumps/*
+resource_packs/*
+*.db
+*.sqlite3
 
-/vendor/*
-/config/app.php
+# Common IDEs
+.idea/
+nbproject/*
 
-/tmp/cache/models/*
-!/tmp/cache/models/empty
-/tmp/cache/persistent/*
-!/tmp/cache/persistent/empty
-/tmp/cache/views/*
-!/tmp/cache/views/empty
-/tmp/sessions/*
-!/tmp/sessions/empty
-/tmp/tests/*
-!/tmp/tests/empty
+# Windows image file caches
+Thumbs.db
 
-/logs/*
-!/logs/empty
+# Folder config file
+Desktop.ini
 
-# CakePHP 2
+# Mac crap
+.DS_Store
+/nbproject/private/
 
-/app/tmp/*
-/app/Config/core.php
-/app/Config/database.php
-/vendors/*
+# Sphinx-doc
+/docs/build/
+!/docs/requirements.txt
+.project
