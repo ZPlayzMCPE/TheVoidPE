@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This is the start.sh file for Genisys
+# This is the start.sh file for VoidPE
 # Please input ./start.sh to start server
 
 # Variable define
@@ -48,16 +48,16 @@ if [ "$PHP_BINARY" == "" ]; then
 fi
 
 if [ "$POCKETMINE_FILE" == "" ]; then
-	if [ -f ./GenisysPro*.phar ]; then
-		POCKETMINE_FILE="./GenisysPro*.phar"
-	elif [ -f ./GenisysPro.phar ]; then
-	    	POCKETMINE_FILE="./GenisysPro.phar"
+	if [ -f ./TheVoidPE*.phar ]; then
+		POCKETMINE_FILE="./TheVoidPE*.phar"
+	elif [ -f ./TheVoidPE.phar ]; then
+	    	POCKETMINE_FILE="./TheVoidPE.phar"
 	elif [ -f ./PocketMine-MP.phar ]; then
 		POCKETMINE_FILE="./PocketMine-MP.phar"
 	elif [ -f ./src/pocketmine/PocketMine.php ]; then
 		POCKETMINE_FILE="./src/pocketmine/PocketMine.php"
 	else
-		echo "[ERROR] Couldn't find a valid Genisys installation."
+		echo "[ERROR] Couldn't find a valid VoidPE installation."
 		exit 1
 	fi
 fi
