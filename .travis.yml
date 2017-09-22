@@ -1,0 +1,47 @@
+sudo: false
+
+language: php
+php:
+ - 7.2
+
+before_script:
+# - phpenv config-rm xdebug.ini
+# - pecl install channel://pecl.php.net/pthreads-3.1.6
+ - pecl install channel://pecl.php.net/weakref-0.3.3
+ - echo | pecl install channel://pecl.php.net/yaml-2.0.2
+ - git clone https://github.com/krakjoe/pthreads.git --depth=1
+ - cd pthreads
+ - phpize
+ - ./configure
+ - make
+ - make install
+ - cd ..
+ - echo "extension=pthreads.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+
+script:
+ - ./ci/run.sh
+
+notifications:
+  email: false
+
+before_deploy:
+ - mv plugins/GenisysPro/GenisysPro*.phar plugins/GenisysPro/GenisysPro.phar
+
+deploy:
+  - provider: releases
+    api_key:
+      secure: 1odWTasf1b9ypbGNF9okBTBGBXbErfXg4r/OzzRskB9o0UzK/G90cwrfGGdjQgM9rao4IQ6qSsZCTPGODsot7ATQeofKYjM8ToPDKe8gzMuro8D1nDdLQoajb5ZQVl0Uc6X+WSpCR8Q46jtp3lKP44Xd3cZzObfJfESSatq3vFkOFsRUtyrLFlo2qrGARuglELG/wTxkkptxnmzRKFJC/FCJRQVYOsEkhnbc4dittKfLsrvdcpt70vc4CflqiBMoUt3tpvKSOdg05jYGtXOjUSRg7yJEvIQWmjTlS7VE3iPsjNEopBTUpbGDhAx9zqMTzCC+Lz3PqHet4wZt2qfF1LdUnCSLV1jYSN2O2Um8rknJdDK/xV0CvXbhQwBpbNKfoIPXh28hmeNW2MJufZCcSFcjNnK4Dvr5JtF2ZPI3XHSS/slXGk7PlNZiGxtYOzaQ7BBuaEIxJv16sgObnNKyq66llcx8K1rfkTHgZ+RIBpTv9JDZQ0BFd+ip7MXEO38mhz2pquFKSglxRemMkC1i6Jcd602clYpQHsA92EZYPLjOzFHA1nPSWSs0gZhrY1dOW5vtEOzjFc71tLWOo6QlkeDAKemqygyeH7uGHZY0iJgC8BREaEOBnqUCzWHlHycqsX7YdAOyhlvBeUPvwHfwp1dN7/JQuxJ6FgNfV/PRsGk=
+    file_glob: true
+    file: plugins/GenisysPro/*
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: pages
+    github_token:
+      secure: 1odWTasf1b9ypbGNF9okBTBGBXbErfXg4r/OzzRskB9o0UzK/G90cwrfGGdjQgM9rao4IQ6qSsZCTPGODsot7ATQeofKYjM8ToPDKe8gzMuro8D1nDdLQoajb5ZQVl0Uc6X+WSpCR8Q46jtp3lKP44Xd3cZzObfJfESSatq3vFkOFsRUtyrLFlo2qrGARuglELG/wTxkkptxnmzRKFJC/FCJRQVYOsEkhnbc4dittKfLsrvdcpt70vc4CflqiBMoUt3tpvKSOdg05jYGtXOjUSRg7yJEvIQWmjTlS7VE3iPsjNEopBTUpbGDhAx9zqMTzCC+Lz3PqHet4wZt2qfF1LdUnCSLV1jYSN2O2Um8rknJdDK/xV0CvXbhQwBpbNKfoIPXh28hmeNW2MJufZCcSFcjNnK4Dvr5JtF2ZPI3XHSS/slXGk7PlNZiGxtYOzaQ7BBuaEIxJv16sgObnNKyq66llcx8K1rfkTHgZ+RIBpTv9JDZQ0BFd+ip7MXEO38mhz2pquFKSglxRemMkC1i6Jcd602clYpQHsA92EZYPLjOzFHA1nPSWSs0gZhrY1dOW5vtEOzjFc71tLWOo6QlkeDAKemqygyeH7uGHZY0iJgC8BREaEOBnqUCzWHlHycqsX7YdAOyhlvBeUPvwHfwp1dN7/JQuxJ6FgNfV/PRsGk=
+    local_dir: plugins/GenisysPro
+    skip_cleanup: true
+    on:
+      branch: master
+    email: 30682912+GenisysPro-deploy@users.noreply.github.com
+    name: GenisysPro-deploy
