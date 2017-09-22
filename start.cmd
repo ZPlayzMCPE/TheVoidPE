@@ -10,10 +10,10 @@ if exist bin\php\php.exe (
 )
 
 if exist TheVoidPE*.phar (
-	set POCKETMINE_FILE=GenisysPro*.phar
+	set POCKETMINE_FILE=TheVoidPE*.phar
 ) else (
 	if exist TheVoidPE.phar (
-		set POCKETMINE_FILE=GenisysPro.phar
+		set POCKETMINE_FILE=TheVoidPE.phar
 	) else (
 		if exist PocketMine-MP.phar (
 			set POCKETMINE_FILE=PocketMine-MP.phar
