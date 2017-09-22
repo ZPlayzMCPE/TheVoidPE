@@ -16,7 +16,7 @@
  * (at your option) any later version.
  *
  * @author GenisysPro
- * @link https://github.com/GenisysPro/GenisysPro
+ * @link https://github.com/ZPlayzMCPE/TheVoidPE
  *
  *
 */
