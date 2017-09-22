@@ -1,5 +1,5 @@
 @echo off
-TITLE GenisysPro server software for Minecraft: Pocket Edition
+TITLE TheVoidPE server software for Minecraft: Pocket Edition
 cd /d %~dp0
 
 if exist bin\php\php.exe (
@@ -9,10 +9,10 @@ if exist bin\php\php.exe (
 	set PHP_BINARY=php
 )
 
-if exist GenisysPro*.phar (
+if exist TheVoidPE*.phar (
 	set POCKETMINE_FILE=GenisysPro*.phar
 ) else (
-	if exist GenisysPro.phar (
+	if exist TheVoidPE.phar (
 		set POCKETMINE_FILE=GenisysPro.phar
 	) else (
 		if exist PocketMine-MP.phar (
@@ -21,7 +21,7 @@ if exist GenisysPro*.phar (
 		    if exist src\pocketmine\PocketMine.php (
 		        set POCKETMINE_FILE=src\pocketmine\PocketMine.php
 			) else (
-		        echo "[ERROR] Couldn't find a valid GenisysPro installation."
+		        echo "[ERROR] Couldn't find a valid TheVoidPE installation."
 		        pause
 		        exit 8
 		    )
