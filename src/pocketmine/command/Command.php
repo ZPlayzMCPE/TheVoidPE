@@ -133,7 +133,7 @@ abstract class Command {
 	 *
 	 * @return mixed
 	 */
-	public abstract function execute(CommandSender $sender, $commandLabel, array $args);
+	public abstract function execute(CommandSender $sender, string $commandLabel, array $args);
 
 	/**
 	 * @return string
@@ -347,7 +347,7 @@ abstract class Command {
 	 * @param string        $message
 	 * @param bool          $sendToSource
 	 */
-	public static function broadcastCommandMessage(CommandSender $source, $message, $sendToSource = true){
+	public static function broadcastCommandMessage(CommandSender $source, string $message, bool $sendToSource = true){
 		if($message instanceof TextContainer){
 			$m = clone $message;
 			$result = "[" . $source->getName() . ": " . ($source->getServer()->getLanguage()->get($m->getText()) !== $m->getText() ? "%" : "") . $m->getText() . "]";
