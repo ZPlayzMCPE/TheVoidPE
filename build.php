@@ -13,10 +13,10 @@ fclose($pipes[0]);
 fclose($pipes[1]);
 fclose($pipes[2]);
 echo "\n\nReturn value: ". proc_close($server) ."\n";
-if(count(glob("plugins/DevTools/Prismarine*.phar")) === 0){
-	echo "Prismarine PHAR was not created!\n";
+if(count(glob("plugins/DevTools/TheVoidPE*.phar")) === 0){
+	echo "TheVoidPE PHAR was not created!\n";
 	exit(1);
 }else{
-	echo "Prismarine PHAR created!\n";
+	echo "TheVoidPE PHAR created!\n";
 	exit(0);
 }
