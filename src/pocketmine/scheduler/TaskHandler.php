@@ -80,9 +80,9 @@ class TaskHandler {
 	}
 
 	/**
-	 * @param int $ticks
+	 * @param int $tick
 	 */
-	public function setNextRun($ticks){
+	public function setNextRun(int $tick){
 		$this->nextRun = $ticks;
 	}
 
@@ -147,8 +147,8 @@ class TaskHandler {
 	/**
 	 * @param int $currentTick
 	 */
-	public function run($currentTick){
-		$this->task->onRun($currentTick);
+	public function run(int $currentTick){
+		$this->task->onRun(int $currentTick);
 	}
 
 	/**
