@@ -42,6 +42,6 @@ deploy:
     local_dir: plugins/TheVoidPE
     skip_cleanup: true
     on:
-      branch: master
+      branch: mcpe1.2
     email: 30682912+TheVoidPE-deploy@users.noreply.github.com
     name: TheVoidPE-deploy
