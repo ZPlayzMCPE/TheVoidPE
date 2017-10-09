@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,42 +15,156 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
+
+declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
 #include <rules/DataPacket.h>
 
-class AvailableCommandsPacket extends DataPacket {
+use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\utils\BinaryStream;
+use pocketmine\Server;
 
+class AvailableCommandsPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::AVAILABLE_COMMANDS_PACKET;
+	
+	const ARG_FLAG_VALID = 0x100000;
+	const ARG_FLAG_ENUM = 0x200000;
+	const ARG_TYPE_INT = 0x01;
+	const ARG_TYPE_FLOAT = 0x02;
+	const ARG_TYPE_VALUE = 0x03;
+	const ARG_TYPE_TARGET = 0x04;
+	const ARG_TYPE_STRING = 0x0d;
+	const ARG_TYPE_POSITION = 0x0e;
+	const ARG_TYPE_RAWTEXT = 0x11;
+	const ARG_TYPE_TEXT = 0x13;
+	const ARG_TYPE_JSON = 0x16;
+	const ARG_TYPE_COMMAND = 0x1d;
 
-	public $commands; //JSON-encoded command data
-	public $unknown;
-
+	public $commands = [];
+	
 	/**
-	 *
+	 * @param string $paramName
+	 * @return int
 	 */
-	public function decode(){
-
+	private static function getFlag($paramName){
+		switch($paramName){
+			case "int":
+				return self::ARG_TYPE_INT;
+			case "float":
+				return self::ARG_TYPE_FLOAT;
+			case "mixed":
+				return self::ARG_TYPE_VALUE;
+			case "target":
+				return self::ARG_TYPE_TARGET;
+			case "string":
+				return self::ARG_TYPE_STRING;
+			case "xyz":
+				return self::ARG_TYPE_POSITION;
+			case "rawtext":
+				return self::ARG_TYPE_RAWTEXT;
+			case "text":
+				return self::ARG_TYPE_TEXT;
+			case "json":
+				return self::ARG_TYPE_JSON;
+			case "command":
+				return self::ARG_TYPE_COMMAND;
+		}
+		return 0;
 	}
 
-	/**
-	 *
-	 */
-	public function encode(){
-		$this->reset();
-		$this->putString($this->commands);
-		$this->putString($this->unknown);
+	protected function decodePayload(){
 	}
 
-	/**
-	 * @return PacketName|string
-	 */
-	public function getName(){
-		return "AvailableCommandsPacket";
+	protected function encodePayload(){
+		$enumValues = [];
+		$enumValuesCount = 0;
+		$enumAdditional = [];
+		$enums = [];
+		$commandsStream = new BinaryStream();
+		foreach($this->commands as $commandName => $commandData){
+			if($commandName === 'help'){ //temp fix for 1.2
+				continue;
+			}
+			$commandsStream->putString($commandName);
+			$description = $commandData['versions'][0]['description'];
+			if(substr($description, 0, 1) === "%"){
+				$description = Server::getInstance()->getLanguage()->translateString(substr($description, 1));
+			}
+			$commandsStream->putString($description);
+			$commandsStream->putByte(0); // flags
+			$commandsStream->putByte(0); // permission level
+			if(isset($commandData['versions'][0]['aliases']) && !empty($commandData['versions'][0]['aliases'])){
+				$aliases = [];
+				foreach($commandData['versions'][0]['aliases'] as $alias){
+					if (!isset($enumAdditional[$alias])) {
+						$enumValues[$enumValuesCount] = $alias;
+						$enumAdditional[$alias] = $enumValuesCount;
+						$targetIndex = $enumValuesCount;
+						$enumValuesCount++;
+					}else{
+						$targetIndex = $enumAdditional[$alias];
+					}
+					$aliases[] = $targetIndex;
+				}
+				$enums[] = [
+					'name' => $commandName . 'CommandAliases',
+					'data' => $aliases,
+				];
+				$aliasesEnumId = count($enums) - 1;
+			}else{
+				$aliasesEnumId = -1;
+			}
+			$commandsStream->putLInt($aliasesEnumId);
+			$commandsStream->putUnsignedVarInt(count($commandData['versions'][0]['overloads'])); // overloads
+			foreach($commandData['versions'][0]['overloads'] as $overloadData){
+				$commandsStream->putUnsignedVarInt(count($overloadData['input']['parameters']));
+				$paramNum = count($overloadData['input']['parameters']);
+				foreach ($overloadData['input']['parameters'] as $paramData) {
+					$commandsStream->putString($paramData['name']);
+					// rawtext type cause problems on some types of clients
+					$isParamOneAndOptional = ($paramNum == 1 && isset($paramData['optional']) && $paramData['optional']);
+					if($paramData['type'] == "rawtext" && ($paramNum > 1 || $isParamOneAndOptional)){
+						$commandsStream->putLInt(self::ARG_FLAG_VALID | self::getFlag('string'));
+					}else{
+						$commandsStream->putLInt(self::ARG_FLAG_VALID | self::getFlag($paramData['type']));
+					}
+					$commandsStream->putBool(isset($paramData['optional']) && $paramData['optional']);
+				}
+			}
+		}
+		$this->putUnsignedVarInt($enumValuesCount);
+		for($i = 0; $i < $enumValuesCount; $i++){
+			$this->putString($enumValues[$i]);
+		}
+		$this->putUnsignedVarInt(0);
+		$enumsCount = count($enums);
+		$this->putUnsignedVarInt($enumsCount);
+		for($i = 0; $i < $enumsCount; $i++){
+			$this->putString($enums[$i]['name']);
+			$dataCount = count($enums[$i]['data']);
+			$this->putUnsignedVarInt($dataCount);
+			for($j = 0; $j < $dataCount; $j++){
+				if($enumValuesCount < 256){
+					$this->putByte($enums[$i]['data'][$j]);
+				}elseif($enumValuesCount < 65536){
+					$this->putLShort($enums[$i]['data'][$j]);
+				}else{
+					$this->putLInt($enums[$i]['data'][$j]);
+				}	
+			}
+		}
+		
+		$this->putUnsignedVarInt(count($this->commands));
+		$this->put($commandsStream->buffer);
+	}
+
+	public function handle(NetworkSession $session) : bool{
+		return $session->handleAvailableCommands($this);
 	}
 
 }
