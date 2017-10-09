@@ -25,8 +25,7 @@ namespace pocketmine\command;
 
 use pocketmine\Thread;
 
-
-class CommandReader extends Thread {
+class CommandReader extends Thread{
 
 	const TYPE_READLINE = 0;
 	const TYPE_STREAM = 1;
@@ -35,17 +34,13 @@ class CommandReader extends Thread {
 	/** @var \Threaded */
 	protected $buffer;
 	private $shutdown = false;
-
 	private $type = self::TYPE_STREAM;
 
-	/**
-	 * CommandReader constructor.
-	 */
 	public function __construct(){
 		$this->buffer = new \Threaded;
-
 		$opts = getopt("", ["disable-readline"]);
-		if((extension_loaded("readline") and !isset($opts["disable-readline"]) and !$this->isPipe(STDIN))){
+
+		if(extension_loaded("readline") and !isset($opts["disable-readline"]) and !$this->isPipe(STDIN)){
 			$this->type = self::TYPE_READLINE;
 		}
 
@@ -94,7 +89,6 @@ class CommandReader extends Thread {
 	 * Checks if the specified stream is a FIFO pipe.
 	 *
 	 * @param resource $stream
-	 *
 	 * @return bool
 	 */
 	private function isPipe($stream) : bool{
@@ -166,7 +160,7 @@ class CommandReader extends Thread {
 	 */
 	public function getLine(){
 		if($this->buffer->count() !== 0){
-			return $this->buffer->shift();
+			return (string) $this->buffer->shift();
 		}
 
 		return null;
@@ -177,7 +171,7 @@ class CommandReader extends Thread {
 			$this->initStdin();
 		}
 
-		while(!$this->shutdown and $this->readLine()) ;
+		while(!$this->shutdown and $this->readLine());
 
 		if($this->type !== self::TYPE_READLINE){
 			global $stdin;
@@ -186,9 +180,6 @@ class CommandReader extends Thread {
 
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getThreadName() : string{
 		return "Console";
 	}

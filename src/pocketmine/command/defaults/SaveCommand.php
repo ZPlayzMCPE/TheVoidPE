@@ -19,37 +19,26 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\event\TranslationContainer;
 
+class SaveCommand extends VanillaCommand{
 
-class SaveCommand extends VanillaCommand {
-
-	/**
-	 * SaveCommand constructor.
-	 *
-	 * @param $name
-	 */
 	public function __construct($name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.save.description",
-			"%pocketmine.command.save.usage"
+			"%commands.save.usage"
 		);
 		$this->setPermission("pocketmine.command.save.perform");
 	}
 
-	/**
-	 * @param CommandSender $sender
-	 * @param string        $currentAlias
-	 * @param array         $args
-	 *
-	 * @return bool
-	 */
-	public function execute(CommandSender $sender, $currentAlias, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
 			return true;
 		}

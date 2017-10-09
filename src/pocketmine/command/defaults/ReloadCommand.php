@@ -19,6 +19,8 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\Command;
@@ -26,13 +28,8 @@ use pocketmine\command\CommandSender;
 use pocketmine\event\TranslationContainer;
 use pocketmine\utils\TextFormat;
 
-class ReloadCommand extends VanillaCommand {
+class ReloadCommand extends VanillaCommand{
 
-	/**
-	 * ReloadCommand constructor.
-	 *
-	 * @param $name
-	 */
 	public function __construct($name){
 		parent::__construct(
 			$name,
@@ -42,14 +39,7 @@ class ReloadCommand extends VanillaCommand {
 		$this->setPermission("pocketmine.command.reload");
 	}
 
-	/**
-	 * @param CommandSender $sender
-	 * @param string        $currentAlias
-	 * @param array         $args
-	 *
-	 * @return bool
-	 */
-	public function execute(CommandSender $sender, $currentAlias, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
 			return true;
 		}

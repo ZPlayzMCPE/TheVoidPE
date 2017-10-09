@@ -19,10 +19,12 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\command;
 
 
-interface CommandExecutor {
+interface CommandExecutor{
 
 	/**
 	 * @param CommandSender $sender

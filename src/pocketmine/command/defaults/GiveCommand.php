@@ -19,24 +19,22 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\event\TranslationContainer;
 use pocketmine\item\Item;
-use pocketmine\nbt\NBT;
+use pocketmine\nbt\JsonNBTParser;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 
-class GiveCommand extends VanillaCommand {
+class GiveCommand extends VanillaCommand{
 
-	/**
-	 * GiveCommand constructor.
-	 *
-	 * @param $name
-	 */
 	public function __construct($name){
 		parent::__construct(
 			$name,
@@ -46,22 +44,13 @@ class GiveCommand extends VanillaCommand {
 		$this->setPermission("pocketmine.command.give");
 	}
 
-	/**
-	 * @param CommandSender $sender
-	 * @param string        $currentAlias
-	 * @param array         $args
-	 *
-	 * @return bool
-	 */
-	public function execute(CommandSender $sender, $currentAlias, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
 			return true;
 		}
 
 		if(count($args) < 2){
-			$sender->sendMessage(new TranslationContainer("commands.generic.usage", [$this->usageMessage]));
-
-			return true;
+			throw new InvalidCommandSyntaxException();
 		}
 
 		$player = $sender->getServer()->getPlayer($args[0]);
@@ -77,7 +66,7 @@ class GiveCommand extends VanillaCommand {
 			$tags = $exception = null;
 			$data = implode(" ", array_slice($args, 3));
 			try{
-				$tags = NBT::parseJSON($data);
+				$tags = JsonNBTParser::parseJSON($data);
 			}catch(\Throwable $ex){
 				$exception = $ex;
 			}

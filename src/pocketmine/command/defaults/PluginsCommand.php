@@ -19,19 +19,16 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\CommandSender;
 use pocketmine\event\TranslationContainer;
 use pocketmine\utils\TextFormat;
 
-class PluginsCommand extends VanillaCommand {
+class PluginsCommand extends VanillaCommand{
 
-	/**
-	 * PluginsCommand constructor.
-	 *
-	 * @param $name
-	 */
 	public function __construct($name){
 		parent::__construct(
 			$name,
@@ -42,14 +39,7 @@ class PluginsCommand extends VanillaCommand {
 		$this->setPermission("pocketmine.command.plugins");
 	}
 
-	/**
-	 * @param CommandSender $sender
-	 * @param string        $currentAlias
-	 * @param array         $args
-	 *
-	 * @return bool
-	 */
-	public function execute(CommandSender $sender, $currentAlias, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
 			return true;
 		}
@@ -57,9 +47,6 @@ class PluginsCommand extends VanillaCommand {
 		return true;
 	}
 
-	/**
-	 * @param CommandSender $sender
-	 */
 	private function sendPluginList(CommandSender $sender){
 		$list = "";
 		foreach(($plugins = $sender->getServer()->getPluginManager()->getPlugins()) as $plugin){
