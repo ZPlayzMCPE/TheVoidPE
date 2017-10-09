@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  *
  *  ____            _        _   __  __ _                  __  __ ____
  * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
@@ -14,10 +14,12 @@
  * (at your option) any later version.
  *
  * @author PocketMine Team
- * @link   http://www.pocketmine.net/
+ * @link http://www.pocketmine.net/
  *
  *
- */
+*/
+
+declare(strict_types=1);
 
 namespace pocketmine\event\player;
 
@@ -25,46 +27,39 @@ use pocketmine\event\Cancellable;
 use pocketmine\item\Item;
 use pocketmine\Player;
 
-class PlayerItemHeldEvent extends PlayerEvent implements Cancellable {
+class PlayerItemHeldEvent extends PlayerEvent implements Cancellable{
 	public static $handlerList = null;
 
+	/** @var Item */
 	private $item;
-	private $slot;
+	/** @var int */
+	private $hotbarSlot;
+	/** @var int */
 	private $inventorySlot;
 
-	/**
-	 * PlayerItemHeldEvent constructor.
-	 *
-	 * @param Player $player
-	 * @param Item   $item
-	 * @param        $inventorySlot
-	 * @param        $slot
-	 */
-	public function __construct(Player $player, Item $item, $inventorySlot, $slot){
+	public function __construct(Player $player, Item $item, int $inventorySlot, int $hotbarSlot){
 		$this->player = $player;
 		$this->item = $item;
-		$this->inventorySlot = (int) $inventorySlot;
-		$this->slot = (int) $slot;
+		$this->inventorySlot = $inventorySlot;
+		$this->hotbarSlot = $hotbarSlot;
+	}
+
+	/**
+	 * Returns the hotbar slot the player is attempting to hold.
+	 * @return int
+	 */
+	public function getSlot() : int{
+		return $this->hotbarSlot;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getSlot(){
-		return $this->slot;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getInventorySlot(){
+	public function getInventorySlot() : int{
 		return $this->inventorySlot;
 	}
 
-	/**
-	 * @return Item
-	 */
-	public function getItem(){
+	public function getItem() : Item{
 		return $this->item;
 	}
 

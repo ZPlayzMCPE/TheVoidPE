@@ -23,33 +23,21 @@ declare(strict_types=1);
 
 namespace pocketmine\event\player;
 
-use pocketmine\event\Cancellable;
-use pocketmine\item\Item;
 use pocketmine\Player;
 
 /**
- * Called when a player tries to drop an item from its hotbar
+ * Called when a player jumps
  */
-class PlayerDropItemEvent extends PlayerEvent implements Cancellable{
+class PlayerJumpEvent extends PlayerEvent{
 	public static $handlerList = null;
 
-	/** @var Item */
-	private $drop;
-
 	/**
+	 * PlayerJumpEvent constructor.
+	 *
 	 * @param Player $player
-	 * @param Item   $drop
 	 */
-	public function __construct(Player $player, Item $drop){
+	public function __construct(Player $player){
 		$this->player = $player;
-		$this->drop = $drop;
-	}
-
-	/**
-	 * @return Item
-	 */
-	public function getItem() : Item{
-		return $this->drop;
 	}
 
 }

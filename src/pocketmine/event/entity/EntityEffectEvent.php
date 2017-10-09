@@ -21,35 +21,23 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\event\player;
+namespace pocketmine\event\entity;
 
+use pocketmine\entity\Effect;
+use pocketmine\entity\Entity;
 use pocketmine\event\Cancellable;
-use pocketmine\item\Item;
-use pocketmine\Player;
 
-/**
- * Called when a player tries to drop an item from its hotbar
- */
-class PlayerDropItemEvent extends PlayerEvent implements Cancellable{
-	public static $handlerList = null;
+class EntityEffectEvent extends EntityEvent implements Cancellable{
 
-	/** @var Item */
-	private $drop;
+	/** @var Effect */
+	private $effect;
 
-	/**
-	 * @param Player $player
-	 * @param Item   $drop
-	 */
-	public function __construct(Player $player, Item $drop){
-		$this->player = $player;
-		$this->drop = $drop;
+	public function __construct(Entity $entity, Effect $effect){
+		$this->entity = $entity;
+		$this->effect = $effect;
 	}
 
-	/**
-	 * @return Item
-	 */
-	public function getItem() : Item{
-		return $this->drop;
+	public function getEffect() : Effect{
+		return $this->effect;
 	}
-
 }

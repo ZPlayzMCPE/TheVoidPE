@@ -14,10 +14,12 @@
  * (at your option) any later version.
  *
  * @author PocketMine Team
- * @link   http://www.pocketmine.net/
+ * @link http://www.pocketmine.net/
  *
  *
- */
+*/
+
+declare(strict_types=1);
 
 namespace pocketmine\event\block;
 
@@ -26,7 +28,7 @@ use pocketmine\event\Cancellable;
 /**
  * Called when a block tries to be updated due to a neighbor change
  */
-class BlockUpdateEvent extends BlockEvent implements Cancellable {
+class BlockUpdateEvent extends BlockEvent implements Cancellable{
 	public static $handlerList = null;
 
 }

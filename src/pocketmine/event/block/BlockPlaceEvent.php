@@ -14,10 +14,12 @@
  * (at your option) any later version.
  *
  * @author PocketMine Team
- * @link   http://www.pocketmine.net/
+ * @link http://www.pocketmine.net/
  *
  *
- */
+*/
+
+declare(strict_types=1);
 
 namespace pocketmine\event\block;
 
@@ -29,30 +31,22 @@ use pocketmine\Player;
 /**
  * Called when a player places a block
  */
-class BlockPlaceEvent extends BlockEvent implements Cancellable {
+class BlockPlaceEvent extends BlockEvent implements Cancellable{
 	public static $handlerList = null;
 
-	/** @var \pocketmine\Player */
+	/** @var Player */
 	protected $player;
 
-	/** @var \pocketmine\item\Item */
+	/** @var Item */
 	protected $item;
 
-
+	/** @var Block */
 	protected $blockReplace;
+	/** @var Block */
 	protected $blockAgainst;
 
-	/**
-	 * BlockPlaceEvent constructor.
-	 *
-	 * @param Player $player
-	 * @param Block  $blockPlace
-	 * @param Block  $blockReplace
-	 * @param Block  $blockAgainst
-	 * @param Item   $item
-	 */
 	public function __construct(Player $player, Block $blockPlace, Block $blockReplace, Block $blockAgainst, Item $item){
-		$this->block = $blockPlace;
+		parent::__construct($blockPlace);
 		$this->blockReplace = $blockReplace;
 		$this->blockAgainst = $blockAgainst;
 		$this->item = $item;
@@ -60,32 +54,32 @@ class BlockPlaceEvent extends BlockEvent implements Cancellable {
 	}
 
 	/**
+	 * Returns the player who is placing the block.
 	 * @return Player
 	 */
-	public function getPlayer(){
+	public function getPlayer() : Player{
 		return $this->player;
 	}
 
 	/**
 	 * Gets the item in hand
-	 *
-	 * @return mixed
+	 * @return Item
 	 */
-	public function getItem(){
+	public function getItem() : Item{
 		return $this->item;
 	}
 
 	/**
 	 * @return Block
 	 */
-	public function getBlockReplaced(){
+	public function getBlockReplaced() : Block{
 		return $this->blockReplace;
 	}
 
 	/**
 	 * @return Block
 	 */
-	public function getBlockAgainst(){
+	public function getBlockAgainst() : Block{
 		return $this->blockAgainst;
 	}
 }

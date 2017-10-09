@@ -14,10 +14,12 @@
  * (at your option) any later version.
  *
  * @author PocketMine Team
- * @link   http://www.pocketmine.net/
+ * @link http://www.pocketmine.net/
  *
  *
- */
+*/
+
+declare(strict_types=1);
 
 namespace pocketmine\event;
 
@@ -30,7 +32,7 @@ namespace pocketmine\event;
  *
  * MONITOR events should not change the event outcome or contents
  */
-abstract class EventPriority {
+abstract class EventPriority{
 	/**
 	 * Event call is of very low importance and should be ran first, to allow
 	 * other plugins to further customise the outcome

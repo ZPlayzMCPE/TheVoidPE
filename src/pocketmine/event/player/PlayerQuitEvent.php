@@ -14,64 +14,47 @@
  * (at your option) any later version.
  *
  * @author PocketMine Team
- * @link   http://www.pocketmine.net/
+ * @link http://www.pocketmine.net/
  *
  *
- */
+*/
+
+declare(strict_types=1);
 
 namespace pocketmine\event\player;
 
+use pocketmine\event\TranslationContainer;
 use pocketmine\Player;
 
 /**
  * Called when a player leaves the server
  */
-class PlayerQuitEvent extends PlayerEvent {
+class PlayerQuitEvent extends PlayerEvent{
 	public static $handlerList = null;
 
-	/** @var string */
+	/** @var TranslationContainer|string */
 	protected $quitMessage;
-	protected $autoSave = true;
 
 	/**
-	 * PlayerQuitEvent constructor.
-	 *
-	 * @param Player $player
-	 * @param        $quitMessage
-	 * @param bool   $autoSave
+	 * @param Player                      $player
+	 * @param TranslationContainer|string $quitMessage
 	 */
-	public function __construct(Player $player, $quitMessage, $autoSave = true){
+	public function __construct(Player $player, $quitMessage){
 		$this->player = $player;
 		$this->quitMessage = $quitMessage;
-		$this->autoSave = $autoSave;
 	}
 
 	/**
-	 * @param $quitMessage
+	 * @param TranslationContainer|string $quitMessage
 	 */
 	public function setQuitMessage($quitMessage){
 		$this->quitMessage = $quitMessage;
 	}
 
 	/**
-	 * @return string
+	 * @return TranslationContainer|string
 	 */
 	public function getQuitMessage(){
 		return $this->quitMessage;
 	}
-
-	/**
-	 * @return bool
-	 */
-	public function getAutoSave(){
-		return $this->autoSave;
-	}
-
-	/**
-	 * @param bool $value
-	 */
-	public function setAutoSave($value = true){
-		$this->autoSave = (bool) $value;
-	}
-
 }

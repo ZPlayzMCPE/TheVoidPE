@@ -14,16 +14,18 @@
  * (at your option) any later version.
  *
  * @author PocketMine Team
- * @link   http://www.pocketmine.net/
+ * @link http://www.pocketmine.net/
  *
  *
- */
+*/
+
+declare(strict_types=1);
 
 namespace pocketmine\event\level;
 
 /**
  * Called when a Chunk is populated (after receiving it on the main thread)
  */
-class ChunkPopulateEvent extends ChunkEvent {
+class ChunkPopulateEvent extends ChunkEvent{
 	public static $handlerList = null;
 }
