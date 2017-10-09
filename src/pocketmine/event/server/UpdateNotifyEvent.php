@@ -23,20 +23,23 @@ declare(strict_types=1);
 
 namespace pocketmine\event\server;
 
-use pocketmine\command\CommandSender;
+use pocketmine\updater\AutoUpdater;
 
 /**
- * This event is called when a command is received over RCON.
+ * Called when the AutoUpdater receives notification of an available PocketMine-MP update.
+ * Plugins may use this event to perform actions when an update notification is received.
  */
-class RemoteServerCommandEvent extends ServerCommandEvent{
+class UpdateNotifyEvent extends ServerEvent{
 	public static $handlerList = null;
 
-	/**
-	 * @param CommandSender $sender
-	 * @param string        $command
-	 */
-	public function __construct(CommandSender $sender, string $command){
-		parent::__construct($sender, $command);
+	/** @var AutoUpdater */
+	private $updater;
+
+	public function __construct(AutoUpdater $updater){
+		$this->updater = $updater;
 	}
 
+	public function getUpdater() : AutoUpdater{
+		return $this->updater;
+	}
 }

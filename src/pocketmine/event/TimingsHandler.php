@@ -19,6 +19,8 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\event;
 
 use pocketmine\command\defaults\TimingsCommand;
@@ -26,7 +28,7 @@ use pocketmine\entity\Living;
 use pocketmine\plugin\PluginManager;
 use pocketmine\Server;
 
-class TimingsHandler {
+class TimingsHandler{
 
 	/** @var TimingsHandler[] */
 	private static $HANDLERS = [];
@@ -47,7 +49,7 @@ class TimingsHandler {
 	 * @param string         $name
 	 * @param TimingsHandler $parent
 	 */
-	public function __construct($name, TimingsHandler $parent = null){
+	public function __construct(string $name, TimingsHandler $parent = null){
 		$this->name = $name;
 		if($parent !== null){
 			$this->parent = $parent;
@@ -57,7 +59,7 @@ class TimingsHandler {
 	}
 
 	/**
-	 * @param $fp
+	 * @param resource $fp
 	 */
 	public static function printTimings($fp){
 		fwrite($fp, "Minecraft" . PHP_EOL);
@@ -101,10 +103,7 @@ class TimingsHandler {
 		}
 	}
 
-	/**
-	 * @param bool $measure
-	 */
-	public static function tick($measure = true){
+	public static function tick(bool $measure = true){
 		if(PluginManager::$useTimings){
 			if($measure){
 				foreach(self::$HANDLERS as $timings){
