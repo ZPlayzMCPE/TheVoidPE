@@ -19,8 +19,10 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\inventory;
 
-class BigShapelessRecipe extends ShapelessRecipe {
+class BigShapelessRecipe extends ShapelessRecipe{
 
 }

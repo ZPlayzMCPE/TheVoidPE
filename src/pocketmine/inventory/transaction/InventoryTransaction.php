@@ -21,20 +21,46 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\inventory;
+namespace pocketmine\inventory\transaction;
 
-use pocketmine\level\Position;
+use pocketmine\inventory\Inventory;
+use pocketmine\inventory\transaction\action\InventoryAction;
 
-class FakeBlockMenu extends Position implements InventoryHolder{
+interface InventoryTransaction{
 
-	private $inventory;
+	/**
+	 * @return float
+	 */
+	public function getCreationTime() : float;
 
-	public function __construct(Inventory $inventory, Position $pos){
-		$this->inventory = $inventory;
-		parent::__construct($pos->x, $pos->y, $pos->z, $pos->level);
-	}
+	/**
+	 * @return InventoryAction[]
+	 */
+	public function getActions() : array;
 
-	public function getInventory(){
-		return $this->inventory;
-	}
+	/**
+	 * @return Inventory[]
+	 */
+	public function getInventories() : array;
+
+	/**
+	 * @param InventoryAction $action
+	 */
+	public function addAction(InventoryAction $action);
+
+	/**
+	 * @return bool
+	 */
+	public function canExecute() : bool;
+
+	/**
+	 * @return bool
+	 */
+	public function execute() : bool;
+
+	/**
+	 * @return bool
+	 */
+	public function hasExecuted() : bool;
+
 }

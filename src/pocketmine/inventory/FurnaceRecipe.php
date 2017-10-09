@@ -19,14 +19,17 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\inventory;
 
 use pocketmine\item\Item;
 use pocketmine\Server;
 use pocketmine\utils\UUID;
 
-class FurnaceRecipe implements Recipe {
+class FurnaceRecipe implements Recipe{
 
+	/** @var UUID|null */
 	private $id = null;
 
 	/** @var Item */
@@ -45,7 +48,7 @@ class FurnaceRecipe implements Recipe {
 	}
 
 	/**
-	 * @return null
+	 * @return UUID|null
 	 */
 	public function getId(){
 		return $this->id;
@@ -72,14 +75,14 @@ class FurnaceRecipe implements Recipe {
 	/**
 	 * @return Item
 	 */
-	public function getInput(){
+	public function getInput() : Item{
 		return clone $this->ingredient;
 	}
 
 	/**
 	 * @return Item
 	 */
-	public function getResult(){
+	public function getResult() : Item{
 		return clone $this->output;
 	}
 
