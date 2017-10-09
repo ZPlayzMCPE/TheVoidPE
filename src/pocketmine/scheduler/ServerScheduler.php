@@ -272,7 +272,7 @@ class ServerScheduler {
 	 *
 	 * @return bool
 	 */
-	private function isReady($currentTicks){
+	private function isReady(int $currentTick){
 		return count($this->tasks) > 0 and $this->queue->current()->getNextRun() <= $currentTicks;
 	}
 
