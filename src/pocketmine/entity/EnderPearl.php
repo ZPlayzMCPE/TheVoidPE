@@ -19,17 +19,22 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\entity;
 
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\entity\EntityEnderPearlEvent;
 use pocketmine\level\Level;
+use pocketmine\level\particle\PortalParticle;
 use pocketmine\level\sound\EndermanTeleportSound;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddEntityPacket;
 use pocketmine\Player;
+use pocketmine\Server;
 
-class EnderPearl extends Projectile {
-
+class EnderPearl extends Projectile{
 	const NETWORK_ID = 87;
 
 	public $width = 0.25;
@@ -41,35 +46,11 @@ class EnderPearl extends Projectile {
 
 	private $hasTeleportedShooter = false;
 
-	/**
-	 * EnderPearl constructor.
-	 *
-	 * @param Level       $level
-	 * @param CompoundTag $nbt
-	 * @param Entity|null $shootingEntity
-	 */
 	public function __construct(Level $level, CompoundTag $nbt, Entity $shootingEntity = null){
 		parent::__construct($level, $nbt, $shootingEntity);
 	}
 
-	public function teleportShooter(){
-		if(!$this->hasTeleportedShooter){
-			$this->hasTeleportedShooter = true;
-			if($this->shootingEntity instanceof Player and $this->y > 0){
-				$this->getLevel()->addSound(new EndermanTeleportSound($this->getPosition()), array($this->shootingEntity));
-				$this->shootingEntity->teleport($this->getPosition());
-			}
-
-			$this->kill();
-		}
-	}
-
-	/**
-	 * @param $currentTick
-	 *
-	 * @return bool
-	 */
-	public function onUpdate($currentTick){
+	public function onUpdate(int $currentTick): bool{
 		if($this->closed){
 			return false;
 		}
@@ -79,7 +60,22 @@ class EnderPearl extends Projectile {
 		$hasUpdate = parent::onUpdate($currentTick);
 
 		if($this->age > 1200 or $this->isCollided){
-			$this->teleportShooter();
+			if($this->shootingEntity instanceof Player and $this->shootingEntity->isOnline() and $this->y > 0){
+				$ev = new EntityEnderPearlEvent($this->shootingEntity, $this);
+				Server::getInstance()->getPluginManager()->callEvent($ev);
+				if(!$ev->isCancelled()){
+					if($this->shootingEntity->isSurvival()){
+						$ev = new EntityDamageEvent($this->shootingEntity, EntityDamageEvent::CAUSE_FALL, 5);
+						$this->shootingEntity->attack($ev->getFinalDamage(), $ev);
+					}
+					for($i = 0; $i < 5; $i++){
+						$this->shootingEntity->getLevel()->addParticle(new PortalParticle(new Vector3($this->shootingEntity->x + mt_rand(-15, 15) / 10, $this->shootingEntity->y + mt_rand(0, 20) / 10, $this->shootingEntity->z + mt_rand(-15, 15) / 10)));
+					}
+					$this->shootingEntity->getLevel()->addSound(new EndermanTeleportSound($this->getPosition()), [$this->shootingEntity]);
+					$this->shootingEntity->teleport($this->getPosition());
+				}
+			}
+			$this->kill();
 			$hasUpdate = true;
 		}
 
@@ -88,22 +84,15 @@ class EnderPearl extends Projectile {
 		return $hasUpdate;
 	}
 
-	/**
-	 * @param Player $player
-	 */
 	public function spawnTo(Player $player){
 		$pk = new AddEntityPacket();
 		$pk->type = EnderPearl::NETWORK_ID;
-		$pk->eid = $this->getId();
-		$pk->x = $this->x;
-		$pk->y = $this->y;
-		$pk->z = $this->z;
-		$pk->speedX = $this->motionX;
-		$pk->speedY = $this->motionY;
-		$pk->speedZ = $this->motionZ;
+		$pk->entityRuntimeId = $this->getId();
+		$pk->position = $this->asVector3();
+		$pk->motion = $this->getMotion();
 		$pk->metadata = $this->dataProperties;
 		$player->dataPacket($pk);
+
 		parent::spawnTo($player);
 	}
-
 }

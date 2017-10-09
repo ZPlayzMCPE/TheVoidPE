@@ -19,15 +19,14 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\entity;
 
-class AttributeMap implements \ArrayAccess {
+class AttributeMap implements \ArrayAccess{
 	/** @var Attribute[] */
 	private $attributes = [];
 
-	/**
-	 * @param Attribute $attribute
-	 */
 	public function addAttribute(Attribute $attribute){
 		$this->attributes[$attribute->getId()] = $attribute;
 	}
@@ -42,7 +41,7 @@ class AttributeMap implements \ArrayAccess {
 	}
 
 	/**
-	 * @return array
+	 * @return Attribute[]
 	 */
 	public function getAll() : array{
 		return $this->attributes;
@@ -57,35 +56,18 @@ class AttributeMap implements \ArrayAccess {
 		});
 	}
 
-	/**
-	 * @param mixed $offset
-	 *
-	 * @return bool
-	 */
 	public function offsetExists($offset){
 		return isset($this->attributes[$offset]);
 	}
 
-	/**
-	 * @param mixed $offset
-	 *
-	 * @return float
-	 */
 	public function offsetGet($offset){
 		return $this->attributes[$offset]->getValue();
 	}
 
-	/**
-	 * @param mixed $offset
-	 * @param mixed $value
-	 */
 	public function offsetSet($offset, $value){
 		$this->attributes[$offset]->setValue($value);
 	}
 
-	/**
-	 * @param mixed $offset
-	 */
 	public function offsetUnset($offset){
 		throw new \RuntimeException("Could not unset an attribute from an attribute map");
 	}

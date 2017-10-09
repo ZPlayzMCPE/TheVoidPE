@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,56 +15,53 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
 
-namespace pocketmine\entity;
+declare(strict_types=1);
 
+namespace pocketmine\entity;
 
 use pocketmine\event\entity\EntityCombustByEntityEvent;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\ProjectileHitEvent;
-use pocketmine\item\Potion;
 use pocketmine\level\Level;
 use pocketmine\level\MovingObjectPosition;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ShortTag;
 
-abstract class Projectile extends Entity {
+abstract class Projectile extends Entity{
 
 	const DATA_SHOOTER_ID = 17;
 
-	/** @var Entity */
-	public $shootingEntity = null;
 	protected $damage = 0;
 
 	public $hadCollision = false;
 
-	/**
-	 * Projectile constructor.
-	 *
-	 * @param Level       $level
-	 * @param CompoundTag $nbt
-	 * @param Entity|null $shootingEntity
-	 */
+	protected $shootingEntity;
+
 	public function __construct(Level $level, CompoundTag $nbt, Entity $shootingEntity = null){
-		$this->shootingEntity = $shootingEntity;
 		if($shootingEntity !== null){
-			$this->setDataProperty(self::DATA_SHOOTER_ID, self::DATA_TYPE_LONG, $shootingEntity->getId());
+			$this->setOwningEntity($shootingEntity);
 		}
-		parent::__construct($level, $nbt);
+		$this->shootingEntity = $shootingEntity;
+  		parent::__construct($level, $nbt);
+  	}
+  
+	public function getShootingEntity(){
+		return $this->shootingEntity;
 	}
 
-	/**
-	 * @param float             $damage
-	 * @param EntityDamageEvent $source
-	 *
-	 * @return bool|void
-	 */
+	public function setShootingEntity(Entity $entity){
+		$this->setOwningEntity($entity);
+		$this->shootingEntity = $entity;
+	}
+
+
 	public function attack($damage, EntityDamageEvent $source){
 		if($source->getCause() === EntityDamageEvent::CAUSE_VOID){
 			parent::attack($damage, $source);
@@ -79,16 +76,44 @@ abstract class Projectile extends Entity {
 		if(isset($this->namedtag->Age)){
 			$this->age = $this->namedtag["Age"];
 		}
+	}
 
+	public function canCollideWith(Entity $entity) : bool{
+		return $entity instanceof Living and !$this->onGround;
 	}
 
 	/**
-	 * @param Entity $entity
-	 *
-	 * @return bool
+	 * Returns the amount of damage this projectile will deal to the entity it hits.
+	 * @return int
 	 */
-	public function canCollideWith(Entity $entity){
-		return $entity instanceof Living and !$this->onGround;
+	public function getResultDamage() : int{
+		return (int) ceil(sqrt($this->motionX ** 2 + $this->motionY ** 2 + $this->motionZ ** 2) * $this->damage);
+	}
+
+	public function onCollideWithEntity(Entity $entity){
+		$this->server->getPluginManager()->callEvent(new ProjectileHitEvent($this));
+
+		$damage = $this->getResultDamage();
+
+		if($this->getOwningEntity() === null){
+			$ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_PROJECTILE, $damage);
+		}else{
+			$ev = new EntityDamageByChildEntityEvent($this->getOwningEntity(), $this, $entity, EntityDamageEvent::CAUSE_PROJECTILE, $damage);
+		}
+
+		$entity->attack($ev->getFinalDamage(), $ev);
+
+		$this->hadCollision = true;
+
+		if($this->fireTicks > 0){
+			$ev = new EntityCombustByEntityEvent($this, $entity, 5);
+			$this->server->getPluginManager()->callEvent($ev);
+			if(!$ev->isCancelled()){
+				$entity->setOnFire($ev->getDuration());
+			}
+		}
+
+		$this->close();
 	}
 
 	public function saveNBT(){
@@ -96,32 +121,19 @@ abstract class Projectile extends Entity {
 		$this->namedtag->Age = new ShortTag("Age", $this->age);
 	}
 
-	/**
-	 * @param $currentTick
-	 *
-	 * @return bool
-	 */
-	public function onUpdate($currentTick){
+	protected function applyDragBeforeGravity() : bool{
+		return true;
+	}
+
+	public function entityBaseTick(int $tickDiff = 1) : bool{
 		if($this->closed){
 			return false;
 		}
 
-
-		$tickDiff = $currentTick - $this->lastUpdate;
-		if($tickDiff <= 0 and !$this->justCreated){
-			return true;
-		}
-		$this->lastUpdate = $currentTick;
-
-		$hasUpdate = $this->entityBaseTick($tickDiff);
+		$hasUpdate = parent::entityBaseTick($tickDiff);
 
 		if($this->isAlive()){
-
 			$movingObjectPosition = null;
-
-			if(!$this->isCollided){
-				$this->motionY -= $this->gravity;
-			}
 
 			$moveVector = new Vector3($this->x + $this->motionX, $this->y + $this->motionY, $this->z + $this->motionZ);
 
@@ -132,7 +144,7 @@ abstract class Projectile extends Entity {
 
 			foreach($list as $entity){
 				if(/*!$entity->canCollideWith($this) or */
-				($entity === $this->shootingEntity and $this->ticksLived < 5)
+				($entity->getId() === $this->getOwningEntityId() and $this->ticksLived < 5)
 				){
 					continue;
 				}
@@ -158,49 +170,12 @@ abstract class Projectile extends Entity {
 
 			if($movingObjectPosition !== null){
 				if($movingObjectPosition->entityHit !== null){
-
-					$this->server->getPluginManager()->callEvent(new ProjectileHitEvent($this));
-
-					$motion = sqrt($this->motionX ** 2 + $this->motionY ** 2 + $this->motionZ ** 2);
-					$damage = ceil($motion * $this->damage);
-
-					if($this instanceof Arrow and $this->isCritical()){
-						$damage += mt_rand(0, (int) ($damage / 2) + 1);
-					}
-
-					if($this->shootingEntity === null){
-						$ev = new EntityDamageByEntityEvent($this, $movingObjectPosition->entityHit, EntityDamageEvent::CAUSE_PROJECTILE, $damage);
-					}else{
-						$ev = new EntityDamageByChildEntityEvent($this->shootingEntity, $this, $movingObjectPosition->entityHit, EntityDamageEvent::CAUSE_PROJECTILE, $damage);
-					}
-
-					if($movingObjectPosition->entityHit->attack($ev->getFinalDamage(), $ev) === true){
-						if($this instanceof Arrow and $this->getPotionId() != 0){
-							foreach(Potion::getEffectsById($this->getPotionId() - 1) as $effect){
-								$movingObjectPosition->entityHit->addEffect($effect->setDuration($effect->getDuration() / 8));
-							}
-						}
-						$ev->useArmors();
-					}
-
-					$this->hadCollision = true;
-
-					if($this->fireTicks > 0){
-						$ev = new EntityCombustByEntityEvent($this, $movingObjectPosition->entityHit, 5);
-						$this->server->getPluginManager()->callEvent($ev);
-						if(!$ev->isCancelled()){
-							$movingObjectPosition->entityHit->setOnFire($ev->getDuration());
-						}
-					}
-
-					$this->kill();
-					return true;
+					$this->onCollideWithEntity($movingObjectPosition->entityHit);
+					return false;
 				}
 			}
 
-			$this->move($this->motionX, $this->motionY, $this->motionZ);
-
-			if($this->isCollided and !$this->hadCollision){
+			if($this->isCollided and !$this->hadCollision){ //Collided with a block
 				$this->hadCollision = true;
 
 				$this->motionX = 0;
@@ -208,19 +183,17 @@ abstract class Projectile extends Entity {
 				$this->motionZ = 0;
 
 				$this->server->getPluginManager()->callEvent(new ProjectileHitEvent($this));
-			}elseif(!$this->isCollided and $this->hadCollision){
+				return false;
+			}elseif(!$this->isCollided and $this->hadCollision){ //Previously collided with block, but block later removed
 				$this->hadCollision = false;
 			}
 
-			if(!$this->onGround or abs($this->motionX) > 0.00001 or abs($this->motionY) > 0.00001 or abs($this->motionZ) > 0.00001){
+			if(!$this->hadCollision or abs($this->motionX) > self::MOTION_THRESHOLD or abs($this->motionY) > self::MOTION_THRESHOLD or abs($this->motionZ) > self::MOTION_THRESHOLD){
 				$f = sqrt(($this->motionX ** 2) + ($this->motionZ ** 2));
 				$this->yaw = (atan2($this->motionX, $this->motionZ) * 180 / M_PI);
 				$this->pitch = (atan2($this->motionY, $f) * 180 / M_PI);
 				$hasUpdate = true;
 			}
-
-			$this->updateMovement();
-
 		}
 
 		return $hasUpdate;
