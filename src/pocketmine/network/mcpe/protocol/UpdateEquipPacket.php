@@ -25,27 +25,39 @@ namespace pocketmine\network\mcpe\protocol;
 
 #include <rules/DataPacket.h>
 
-
 use pocketmine\network\mcpe\NetworkSession;
 
-class TakeItemEntityPacket extends DataPacket{
-	const NETWORK_ID = ProtocolInfo::TAKE_ITEM_ENTITY_PACKET;
+class UpdateEquipPacket extends DataPacket{
+	const NETWORK_ID = ProtocolInfo::UPDATE_EQUIP_PACKET;
 
 	/** @var int */
-	public $target;
+	public $windowId;
 	/** @var int */
-	public $eid;
+	public $windowType;
+	/** @var int */
+	public $unknownVarint; //TODO: find out what this is (vanilla always sends 0)
+	/** @var int */
+	public $entityUniqueId;
+	/** @var string */
+	public $namedtag;
 
 	protected function decodePayload(){
-
+		$this->windowId = $this->getByte();
+		$this->windowType = $this->getByte();
+		$this->unknownVarint = $this->getVarInt();
+		$this->entityUniqueId = $this->getEntityUniqueId();
+		$this->namedtag = $this->get(true);
 	}
 
 	protected function encodePayload(){
-		$this->putEntityRuntimeId($this->target);
-		$this->putEntityRuntimeId($this->eid);
+		$this->putByte($this->windowId);
+		$this->putByte($this->windowType);
+		$this->putVarInt($this->unknownVarint);
+		$this->putEntityUniqueId($this->entityUniqueId);
+		$this->put($this->namedtag);
 	}
 
 	public function handle(NetworkSession $session) : bool{
-		return $session->handleTakeItemEntity($this);
+		return $session->handleUpdateEquip($this);
 	}
 }
