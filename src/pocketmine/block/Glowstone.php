@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,75 +15,44 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\block;
 
-use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
 
-class Glowstone extends Transparent implements SolidLight {
+class Glowstone extends Transparent{
 
-	protected $id = self::GLOWSTONE_BLOCK;
+	protected $id = self::GLOWSTONE;
 
-	/**
-	 * Glowstone constructor.
-	 */
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName() : string{
 		return "Glowstone";
 	}
 
-	/**
-	 * @return float
-	 */
-	public function getHardness(){
+	public function getHardness() : float{
 		return 0.3;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_PICKAXE;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getLightLevel(){
+	public function getLightLevel() : int{
 		return 15;
 	}
 
-	/**
-	 * @param Item $item
-	 *
-	 * @return array
-	 */
 	public function getDrops(Item $item) : array{
-		if($item->getEnchantmentLevel(Enchantment::TYPE_MINING_SILK_TOUCH) > 0){
-			return [
-				[Item::GLOWSTONE_BLOCK, 0, 1],
-			];
-		}else{
-			$fortuneL = $item->getEnchantmentLevel(Enchantment::TYPE_MINING_FORTUNE);
-			$fortuneL = $fortuneL > 3 ? 3 : $fortuneL;
-			$times = [1, 1, 2, 3, 4];
-			$time = $times[mt_rand(0, $fortuneL + 1)];
-			$num = mt_rand(2, 4) * $time;
-			$num = $num > 4 ? 4 : $num;
-			return [
-				[Item::GLOWSTONE_DUST, 0, $num],
-			];
-		}
+		return [
+			Item::get(Item::GLOWSTONE_DUST, 0, mt_rand(2, 4))
+		];
 	}
 }

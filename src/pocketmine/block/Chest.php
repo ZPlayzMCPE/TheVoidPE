@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,15 +15,18 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
+
+declare(strict_types=1);
 
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
 use pocketmine\math\AxisAlignedBB;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
@@ -33,50 +36,26 @@ use pocketmine\Player;
 use pocketmine\tile\Chest as TileChest;
 use pocketmine\tile\Tile;
 
-class Chest extends Transparent {
+class Chest extends Transparent{
 
 	protected $id = self::CHEST;
 
-	/**
-	 * Chest constructor.
-	 *
-	 * @param int $meta
-	 */
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function canBeActivated() : bool{
-		return true;
-	}
-
-	/**
-	 * @return float
-	 */
-	public function getHardness(){
+	public function getHardness() : float{
 		return 2.5;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName() : string{
 		return "Chest";
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_AXE;
 	}
 
-	/**
-	 * @return AxisAlignedBB
-	 */
 	protected function recalculateBoundingBox(){
 		return new AxisAlignedBB(
 			$this->x + 0.0625,
@@ -88,19 +67,7 @@ class Chest extends Transparent {
 		);
 	}
 
-	/**
-	 * @param Item        $item
-	 * @param Block       $block
-	 * @param Block       $target
-	 * @param int         $face
-	 * @param float       $fx
-	 * @param float       $fy
-	 * @param float       $fz
-	 * @param Player|null $player
-	 *
-	 * @return bool
-	 */
-	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+	public function place(Item $item, Block $block, Block $target, int $face, Vector3 $facePos, Player $player = null) : bool{
 		$faces = [
 			0 => 4,
 			1 => 2,
@@ -118,7 +85,7 @@ class Chest extends Transparent {
 				continue;
 			}
 			$c = $this->getSide($side);
-			if($c instanceof Chest and $c->getDamage() === $this->meta){
+			if($c->getId() === $this->id and $c->getDamage() === $this->meta){
 				$tile = $this->getLevel()->getTile($c);
 				if($tile instanceof TileChest and !$tile->isPaired()){
 					$chest = $tile;
@@ -157,30 +124,19 @@ class Chest extends Transparent {
 		return true;
 	}
 
-	/**
-	 * @param Item $item
-	 *
-	 * @return bool
-	 */
-	public function onBreak(Item $item){
+	public function onBreak(Item $item) : bool{
 		$t = $this->getLevel()->getTile($this);
 		if($t instanceof TileChest){
 			$t->unpair();
 		}
-		$this->getLevel()->setBlock($this, new Air(), true, true);
+		$this->getLevel()->setBlock($this, BlockFactory::get(Block::AIR), true, true);
 
 		return true;
 	}
 
-	/**
-	 * @param Item        $item
-	 * @param Player|null $player
-	 *
-	 * @return bool
-	 */
-	public function onActivate(Item $item, Player $player = null){
+	public function onActivate(Item $item, Player $player = null) : bool{
 		if($player instanceof Player){
-			$top = $this->getSide(1);
+			$top = $this->getSide(Vector3::SIDE_UP);
 			if($top->isTransparent() !== true){
 				return true;
 			}
@@ -207,23 +163,17 @@ class Chest extends Transparent {
 				}
 			}
 
-			if($player->isCreative() and $player->getServer()->limitedCreative){
-				return true;
-			}
 			$player->addWindow($chest->getInventory());
 		}
 
 		return true;
 	}
 
-	/**
-	 * @param Item $item
-	 *
-	 * @return array
-	 */
-	public function getDrops(Item $item) : array{
-		return [
-			[$this->id, 0, 1],
-		];
+	public function getVariantBitmask() : int{
+		return 0;
+	}
+
+	public function getFuelTime() : int{
+		return 300;
 	}
 }

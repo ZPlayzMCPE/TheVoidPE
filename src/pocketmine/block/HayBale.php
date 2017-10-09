@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,69 +15,35 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
+
+declare(strict_types=1);
 
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
+use pocketmine\math\Vector3;
 use pocketmine\Player;
 
-class HayBale extends Solid {
+class HayBale extends Solid{
 
 	protected $id = self::HAY_BALE;
 
-	/**
-	 * HayBale constructor.
-	 *
-	 * @param int $meta
-	 */
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName() : string{
 		return "Hay Bale";
 	}
 
-	/**
-	 * @return float
-	 */
-	public function getHardness(){
+	public function getHardness() : float{
 		return 0.5;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getBurnChance() : int{
-		return 60;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getBurnAbility() : int{
-		return 20;
-	}
-
-	/**
-	 * @param Item        $item
-	 * @param Block       $block
-	 * @param Block       $target
-	 * @param int         $face
-	 * @param float       $fx
-	 * @param float       $fy
-	 * @param float       $fz
-	 * @param Player|null $player
-	 *
-	 * @return bool
-	 */
-	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+	public function place(Item $item, Block $block, Block $target, int $face, Vector3 $facePos, Player $player = null) : bool{
 		$faces = [
 			0 => 0,
 			1 => 0,
@@ -93,15 +59,7 @@ class HayBale extends Solid {
 		return true;
 	}
 
-	/**
-	 * @param Item $item
-	 *
-	 * @return array
-	 */
-	public function getDrops(Item $item) : array{
-		return [
-			[$this->id, 0, 1],
-		];
+	public function getVariantBitmask() : int{
+		return 0x03;
 	}
-
 }

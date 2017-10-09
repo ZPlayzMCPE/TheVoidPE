@@ -19,6 +19,8 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
@@ -33,39 +35,22 @@ use pocketmine\Player;
 use pocketmine\tile\FlowerPot as TileFlowerPot;
 use pocketmine\tile\Tile;
 
-class FlowerPot extends Flowable {
+class FlowerPot extends Flowable{
 
 	const STATE_EMPTY = 0;
 	const STATE_FULL = 1;
 
 	protected $id = self::FLOWER_POT_BLOCK;
+	protected $itemId = Item::FLOWER_POT;
 
-	/**
-	 * FlowerPot constructor.
-	 *
-	 * @param int $meta
-	 */
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName() : string{
 		return "Flower Pot Block";
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function canBeActivated() : bool{
-		return true;
-	}
-
-	/**
-	 * @return AxisAlignedBB
-	 */
 	protected function recalculateBoundingBox(){
 		return new AxisAlignedBB(
 			$this->x + 0.3125,
@@ -77,19 +62,7 @@ class FlowerPot extends Flowable {
 		);
 	}
 
-	/**
-	 * @param Item        $item
-	 * @param Block       $block
-	 * @param Block       $target
-	 * @param int         $face
-	 * @param float       $fx
-	 * @param float       $fy
-	 * @param float       $fz
-	 * @param Player|null $player
-	 *
-	 * @return bool
-	 */
-	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+	public function place(Item $item, Block $block, Block $target, int $face, Vector3 $facePos, Player $player = null) : bool{
 		if($this->getSide(Vector3::SIDE_DOWN)->isTransparent()){
 			return false;
 		}
@@ -115,14 +88,9 @@ class FlowerPot extends Flowable {
 		return true;
 	}
 
-	/**
-	 * @param int $type
-	 *
-	 * @return bool|int
-	 */
-	public function onUpdate($type){
+	public function onUpdate(int $type){
 		if($type === Level::BLOCK_UPDATE_NORMAL){
-			if($this->getSide(0)->isTransparent() === true){
+			if($this->getSide(Vector3::SIDE_DOWN)->isTransparent() === true){
 				$this->getLevel()->useBreakOn($this);
 
 				return Level::BLOCK_UPDATE_NORMAL;
@@ -132,13 +100,7 @@ class FlowerPot extends Flowable {
 		return false;
 	}
 
-	/**
-	 * @param Item        $item
-	 * @param Player|null $player
-	 *
-	 * @return bool
-	 */
-	public function onActivate(Item $item, Player $player = null){
+	public function onActivate(Item $item, Player $player = null) : bool{
 		$pot = $this->getLevel()->getTile($this);
 		if(!($pot instanceof TileFlowerPot)){
 			return false;
@@ -160,19 +122,17 @@ class FlowerPot extends Flowable {
 		return true;
 	}
 
-	/**
-	 * @param Item $item
-	 *
-	 * @return array
-	 */
 	public function getDrops(Item $item) : array{
-		$items = [[Item::FLOWER_POT, 0, 1]];
+		$items = parent::getDrops($item);
+
 		$tile = $this->getLevel()->getTile($this);
 		if($tile instanceof TileFlowerPot){
-			if(($item = $tile->getItem())->getId() !== Item::AIR){
-				$items[] = [$item->getId(), $item->getDamage(), 1];
+			$item = $tile->getItem();
+			if($item->getId() !== Item::AIR){
+				$items[] = $item;
 			}
 		}
+
 		return $items;
 	}
 

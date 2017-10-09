@@ -19,10 +19,13 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
@@ -32,67 +35,31 @@ use pocketmine\Player;
 use pocketmine\tile\Furnace as TileFurnace;
 use pocketmine\tile\Tile;
 
-class BurningFurnace extends Solid {
+class BurningFurnace extends Solid{
 
 	protected $id = self::BURNING_FURNACE;
 
-	/**
-	 * BurningFurnace constructor.
-	 *
-	 * @param int $meta
-	 */
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName() : string{
 		return "Burning Furnace";
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function canBeActivated() : bool{
-		return true;
-	}
-
-	/**
-	 * @return float
-	 */
-	public function getHardness(){
+	public function getHardness() : float{
 		return 3.5;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_PICKAXE;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getLightLevel(){
+	public function getLightLevel() : int{
 		return 13;
 	}
 
-	/**
-	 * @param Item        $item
-	 * @param Block       $block
-	 * @param Block       $target
-	 * @param int         $face
-	 * @param float       $fx
-	 * @param float       $fy
-	 * @param float       $fz
-	 * @param Player|null $player
-	 *
-	 * @return bool
-	 */
-	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+	public function place(Item $item, Block $block, Block $target, int $face, Vector3 $facePos, Player $player = null) : bool{
 		$faces = [
 			0 => 4,
 			1 => 2,
@@ -125,24 +92,7 @@ class BurningFurnace extends Solid {
 		return true;
 	}
 
-	/**
-	 * @param Item $item
-	 *
-	 * @return bool
-	 */
-	public function onBreak(Item $item){
-		$this->getLevel()->setBlock($this, new Air(), true, true);
-
-		return true;
-	}
-
-	/**
-	 * @param Item        $item
-	 * @param Player|null $player
-	 *
-	 * @return bool
-	 */
-	public function onActivate(Item $item, Player $player = null){
+	public function onActivate(Item $item, Player $player = null) : bool{
 		if($player instanceof Player){
 			$furnace = $this->getLevel()->getTile($this);
 			if(!($furnace instanceof TileFurnace)){
@@ -163,26 +113,21 @@ class BurningFurnace extends Solid {
 				}
 			}
 
-			if($player->isCreative() and $player->getServer()->limitedCreative){
-				return true;
-			}
 			$player->addWindow($furnace->getInventory());
 		}
 
 		return true;
 	}
 
-	/**
-	 * @param Item $item
-	 *
-	 * @return array
-	 */
+	public function getVariantBitmask() : int{
+		return 0;
+	}
+
 	public function getDrops(Item $item) : array{
-		$drops = [];
 		if($item->isPickaxe() >= Tool::TIER_WOODEN){
-			$drops[] = [Item::FURNACE, 0, 1];
+			return parent::getDrops($item);
 		}
 
-		return $drops;
+		return [];
 	}
 }

@@ -19,25 +19,17 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\block;
 
-class ActivatorRail extends PoweredRail {
+class ActivatorRail extends Rail{
 
 	protected $id = self::ACTIVATOR_RAIL;
 
-	/**
-	 * ActivatorRail constructor.
-	 *
-	 * @param int $meta
-	 */
-	public function __construct($meta = 0){
-		$this->meta = $meta;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getName() : string{
 		return "Activator Rail";
 	}
+
+	//TODO
 }

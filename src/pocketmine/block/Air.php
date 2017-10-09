@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,9 +15,11 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
+
+declare(strict_types=1);
 
 namespace pocketmine\block;
 
@@ -27,87 +29,52 @@ use pocketmine\item\Item;
 /**
  * Air block
  */
-class Air extends Transparent {
+class Air extends Transparent{
 
 	protected $id = self::AIR;
 	protected $meta = 0;
 
-	/**
-	 * Air constructor.
-	 */
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName() : string{
 		return "Air";
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function canPassThrough(){
+	public function canPassThrough() : bool{
 		return true;
 	}
 
-	/**
-	 * @param Item $item
-	 *
-	 * @return bool
-	 */
-	public function isBreakable(Item $item){
+	public function isBreakable(Item $item) : bool{
 		return false;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function canBeFlowedInto(){
+	public function canBeFlowedInto() : bool{
 		return true;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function canBeReplaced(){
+	public function canBeReplaced(Block $with = null) : bool{
 		return true;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function canBePlaced(){
+	public function canBePlaced() : bool{
 		return false;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSolid(){
+	public function isSolid() : bool{
 		return false;
 	}
 
-	/**
-	 * @return null
-	 */
 	public function getBoundingBox(){
 		return null;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getHardness(){
-		return 0;
+	public function getHardness() : float{
+		return -1;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getResistance(){
+	public function getBlastResistance() : float{
 		return 0;
 	}
 
