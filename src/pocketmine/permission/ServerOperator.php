@@ -19,23 +19,23 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\permission;
 
 
-interface ServerOperator {
+interface ServerOperator{
 	/**
 	 * Checks if the current object has operator permissions
 	 *
 	 * @return bool
 	 */
-	public function isOp();
+	public function isOp() : bool;
 
 	/**
 	 * Sets the operator permission for the current object
 	 *
 	 * @param bool $value
-	 *
-	 * @return void
 	 */
-	public function setOp($value);
+	public function setOp(bool $value);
 }
