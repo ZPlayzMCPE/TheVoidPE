@@ -19,13 +19,14 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\level;
 
 use pocketmine\math\Vector3;
 use pocketmine\utils\MainLogger;
 
-
-class Position extends Vector3 {
+class Position extends Vector3{
 
 	/** @var Level */
 	public $level = null;
@@ -43,19 +44,13 @@ class Position extends Vector3 {
 		$this->level = $level;
 	}
 
-	/**
-	 * @param Vector3    $pos
-	 * @param Level|null $level
-	 *
-	 * @return Position
-	 */
 	public static function fromObject(Vector3 $pos, Level $level = null){
 		return new Position($pos->x, $pos->y, $pos->z, $level);
 	}
 
 	/**
 	 * Return a Position instance
-	 * 
+	 *
 	 * @return Position
 	 */
 	public function asPosition() : Position{
@@ -63,22 +58,10 @@ class Position extends Vector3 {
 	}
 
 	/**
-	 * @param int|Vector3 $x
-	 * @param int         $y
-	 * @param int         $z
+	 * Returns the target Level, or null if the target is not valid.
+	 * If a reference exists to a Level which is closed, the reference will be destroyed and null will be returned.
 	 *
-	 * @return Position
-	 */
-	public function add($x, $y = 0, $z = 0){
-		if($x instanceof Vector3){
-			return new Position($this->x + $x->x, $this->y + $x->y, $this->z + $x->z, $this->level);
-		}else{
-			return new Position($this->x + $x, $this->y + $y, $this->z + $z, $this->level);
-		}
-	}
-
-	/**
-	 * @return Level
+	 * @return Level|null
 	 */
 	public function getLevel(){
 		if($this->level !== null and $this->level->isClosed()){
@@ -112,7 +95,7 @@ class Position extends Vector3 {
 	 *
 	 * @return bool
 	 */
-	public function isValid(){
+	public function isValid() : bool{
 		return $this->getLevel() instanceof Level;
 	}
 
@@ -127,16 +110,11 @@ class Position extends Vector3 {
 	 * @throws LevelException
 	 */
 	public function getSide($side, $step = 1){
-		if(!$this->isValid()){
-			throw new LevelException("Undefined Level reference");
-		}
+		assert($this->isValid());
 
 		return Position::fromObject(parent::getSide($side, $step), $this->level);
 	}
 
-	/**
-	 * @return string
-	 */
 	public function __toString(){
 		return "Position(level=" . ($this->isValid() ? $this->getLevel()->getName() : "null") . ",x=" . $this->x . ",y=" . $this->y . ",z=" . $this->z . ")";
 	}
@@ -155,21 +133,10 @@ class Position extends Vector3 {
 		return $this;
 	}
 
-	/**
-	 * @param Vector3 $pos
-	 * @param         $x
-	 * @param         $y
-	 * @param         $z
-	 *
-	 * @return $this
-	 */
-	public function fromObjectAdd(Vector3 $pos, $x, $y, $z){
-		if($pos instanceof Position){
-			$this->level = $pos->level;
+	public function equals(Vector3 $v) : bool{
+		if($v instanceof Position){
+			return parent::equals($v) and $v->getLevel() === $this->getLevel();
 		}
-		parent::fromObjectAdd($pos, $x, $y, $z);
-		return $this;
+		return parent::equals($v);
 	}
-
-
 }
