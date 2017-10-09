@@ -19,20 +19,23 @@
  *
 */
 
+declare(strict_types=1);
+
 /**
  * Plugin related classes
  */
-
 namespace pocketmine\plugin;
 
 use pocketmine\command\CommandExecutor;
+use pocketmine\Server;
+use pocketmine\utils\Config;
 
 
 /**
  * It is recommended to use PluginBase for the actual plugin
  *
  */
-interface Plugin extends CommandExecutor {
+interface Plugin extends CommandExecutor{
 
 	/**
 	 * Called when the plugin is loaded, before calling onEnable()
@@ -45,9 +48,9 @@ interface Plugin extends CommandExecutor {
 	public function onEnable();
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function isEnabled();
+	public function isEnabled() : bool;
 
 	/**
 	 * Called when the plugin is disabled
@@ -56,74 +59,77 @@ interface Plugin extends CommandExecutor {
 	public function onDisable();
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function isDisabled();
+	public function isDisabled() : bool;
 
 	/**
-	 * Gets the plugin's data folder to save files and configuration
+	 * Gets the plugin's data folder to save files and configuration.
+	 * This directory name has a trailing slash.
+	 *
+	 * @return string
 	 */
-	public function getDataFolder();
+	public function getDataFolder() : string;
 
 	/**
 	 * @return PluginDescription
 	 */
-	public function getDescription();
+	public function getDescription() : PluginDescription;
 
 	/**
 	 * Gets an embedded resource in the plugin file.
 	 *
 	 * @param string $filename
+	 *
+	 * @return
 	 */
-	public function getResource($filename);
+	public function getResource(string $filename);
 
 	/**
 	 * Saves an embedded resource to its relative location in the data folder
 	 *
 	 * @param string $filename
-	 * @param bool   $replace
+	 * @param bool $replace
+	 *
+	 * @return bool
 	 */
-	public function saveResource($filename, $replace = false);
+	public function saveResource(string $filename, bool $replace = false) : bool;
 
 	/**
 	 * Returns all the resources packaged with the plugin
+	 *
+	 * @return string[]
 	 */
-	public function getResources();
+	public function getResources() : array;
 
 	/**
-	 * @return \pocketmine\utils\Config
+	 * @return Config
 	 */
-	public function getConfig();
+	public function getConfig() : Config;
 
-	/**
-	 * @return mixed
-	 */
 	public function saveConfig();
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function saveDefaultConfig();
+	public function saveDefaultConfig() : bool;
 
-	/**
-	 * @return mixed
-	 */
 	public function reloadConfig();
 
 	/**
-	 * @return \pocketmine\Server
+	 * @return Server
 	 */
-	public function getServer();
+	public function getServer() : Server;
 
 	/**
-	 * @return mixed
+	 * @return string
 	 */
-	public function getName();
+	public function getName() : string;
 
 	/**
 	 * @return PluginLogger
 	 */
-	public function getLogger();
+	public function getLogger() : PluginLogger;
 
 	/**
 	 * @return PluginLoader

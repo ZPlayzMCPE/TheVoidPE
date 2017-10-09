@@ -19,19 +19,15 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\metadata;
 
 use pocketmine\entity\Entity;
 
-class EntityMetadataStore extends MetadataStore {
+class EntityMetadataStore extends MetadataStore{
 
-	/**
-	 * @param Metadatable $entity
-	 * @param string      $metadataKey
-	 *
-	 * @return string
-	 */
-	public function disambiguate(Metadatable $entity, $metadataKey){
+	public function disambiguate(Metadatable $entity, string $metadataKey) : string{
 		if(!($entity instanceof Entity)){
 			throw new \InvalidArgumentException("Argument must be an Entity instance");
 		}

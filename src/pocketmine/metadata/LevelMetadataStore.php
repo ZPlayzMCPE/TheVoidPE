@@ -19,19 +19,15 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\metadata;
 
 use pocketmine\level\Level;
 
-class LevelMetadataStore extends MetadataStore {
+class LevelMetadataStore extends MetadataStore{
 
-	/**
-	 * @param Metadatable $level
-	 * @param string      $metadataKey
-	 *
-	 * @return string
-	 */
-	public function disambiguate(Metadatable $level, $metadataKey){
+	public function disambiguate(Metadatable $level, string $metadataKey) : string{
 		if(!($level instanceof Level)){
 			throw new \InvalidArgumentException("Argument must be a Level instance");
 		}

@@ -19,37 +19,39 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\plugin;
 
 /**
  * Handles different types of plugins
  */
-interface PluginLoader {
+interface PluginLoader{
 
 	/**
 	 * Loads the plugin contained in $file
 	 *
 	 * @param string $file
 	 *
-	 * @return Plugin
+	 * @return Plugin|null
 	 */
-	public function loadPlugin($file);
+	public function loadPlugin(string $file);
 
 	/**
 	 * Gets the PluginDescription from the file
 	 *
 	 * @param string $file
 	 *
-	 * @return PluginDescription
+	 * @return null|PluginDescription
 	 */
-	public function getPluginDescription($file);
+	public function getPluginDescription(string $file);
 
 	/**
 	 * Returns the filename regex patterns that this loader accepts
 	 *
 	 * @return string
 	 */
-	public function getPluginFilters();
+	public function getPluginFilters() : string;
 
 	/**
 	 * @param Plugin $plugin

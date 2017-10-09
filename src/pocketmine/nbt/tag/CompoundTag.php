@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,9 +15,11 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
+
+declare(strict_types=1);
 
 namespace pocketmine\nbt\tag;
 
@@ -25,22 +27,18 @@ use pocketmine\nbt\NBT;
 
 #include <rules/NBT.h>
 
-class CompoundTag extends NamedTag implements \ArrayAccess {
+class CompoundTag extends NamedTag implements \ArrayAccess{
 
 	/**
+	 * CompoundTag constructor.
+	 *
 	 * @param string     $name
 	 * @param NamedTag[] $value
 	 */
-	public function __construct($name = "", $value = []){
-		$this->__name = $name;
-		foreach($value as $tag){
-			$this->{$tag->getName()} = $tag;
-		}
+	public function __construct(string $name = "", array $value = []){
+		parent::__construct($name, $value);
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getCount(){
 		$count = 0;
 		foreach($this as $tag){
@@ -53,19 +51,28 @@ class CompoundTag extends NamedTag implements \ArrayAccess {
 	}
 
 	/**
-	 * @param mixed $offset
+	 * @param NamedTag[] $value
 	 *
-	 * @return bool
+	 * @throws \TypeError
 	 */
+	public function setValue($value){
+		if(is_array($value)){
+			foreach($value as $name => $tag){
+				if($tag instanceof NamedTag){
+					$this->{$tag->getName()} = $tag;
+				}else{
+					throw new \TypeError("CompoundTag members must be NamedTags, got " . gettype($tag) . " in given array");
+				}
+			}
+		}else{
+			throw new \TypeError("CompoundTag value must be NamedTag[], " . gettype($value) . " given");
+		}
+	}
+
 	public function offsetExists($offset){
 		return isset($this->{$offset}) and $this->{$offset} instanceof Tag;
 	}
 
-	/**
-	 * @param mixed $offset
-	 *
-	 * @return null
-	 */
 	public function offsetGet($offset){
 		if(isset($this->{$offset}) and $this->{$offset} instanceof Tag){
 			if($this->{$offset} instanceof \ArrayAccess){
@@ -75,13 +82,11 @@ class CompoundTag extends NamedTag implements \ArrayAccess {
 			}
 		}
 
+		assert(false, "Offset $offset not found");
+
 		return null;
 	}
 
-	/**
-	 * @param mixed $offset
-	 * @param mixed $value
-	 */
 	public function offsetSet($offset, $value){
 		if($value instanceof Tag){
 			$this->{$offset} = $value;
@@ -90,26 +95,14 @@ class CompoundTag extends NamedTag implements \ArrayAccess {
 		}
 	}
 
-	/**
-	 * @param mixed $offset
-	 */
 	public function offsetUnset($offset){
 		unset($this->{$offset});
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getType(){
 		return NBT::TAG_Compound;
 	}
 
-	/**
-	 * @param NBT  $nbt
-	 * @param bool $network
-	 *
-	 * @return mixed|void
-	 */
 	public function read(NBT $nbt, bool $network = false){
 		$this->value = [];
 		do{
@@ -120,25 +113,15 @@ class CompoundTag extends NamedTag implements \ArrayAccess {
 		}while(!($tag instanceof EndTag) and !$nbt->feof());
 	}
 
-	/**
-	 * @param NBT  $nbt
-	 * @param bool $network
-	 *
-	 * @return mixed|void
-	 */
 	public function write(NBT $nbt, bool $network = false){
 		foreach($this as $tag){
 			if($tag instanceof Tag and !($tag instanceof EndTag)){
 				$nbt->writeTag($tag, $network);
 			}
 		}
-
 		$nbt->writeTag(new EndTag, $network);
 	}
 
-	/**
-	 * @return string
-	 */
 	public function __toString(){
 		$str = get_class($this) . "{\n";
 		foreach($this as $tag){
@@ -147,5 +130,13 @@ class CompoundTag extends NamedTag implements \ArrayAccess {
 			}
 		}
 		return $str . "}";
+	}
+
+	public function __clone(){
+		foreach($this as $key => $tag){
+			if($tag instanceof Tag){
+				$this->{$key} = clone $tag;
+			}
+		}
 	}
 }
