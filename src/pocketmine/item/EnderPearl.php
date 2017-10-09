@@ -19,13 +19,13 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\item;
 
-class EnderPearl extends Item {
+class EnderPearl extends Item{
 
 	/**
-	 * EnderPearl constructor.
-	 *
 	 * @param int $meta
 	 * @param int $count
 	 */
