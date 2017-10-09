@@ -19,6 +19,8 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\level\generator;
 
 use pocketmine\level\format\Chunk;
@@ -27,8 +29,7 @@ use pocketmine\level\SimpleChunkManager;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 
-
-class PopulationTask extends AsyncTask {
+class PopulationTask extends AsyncTask{
 
 	public $state;
 	public $levelId;
@@ -44,25 +45,13 @@ class PopulationTask extends AsyncTask {
 	public $chunk7;
 	public $chunk8;
 
-	/**
-	 * PopulationTask constructor.
-	 *
-	 * @param Level $level
-	 * @param Chunk $chunk
-	 */
 	public function __construct(Level $level, Chunk $chunk){
 		$this->state = true;
 		$this->levelId = $level->getId();
 		$this->chunk = $chunk->fastSerialize();
 
-		for($i = 0; $i < 9; ++$i){
-			if($i === 4){
-				continue;
-			}
-			$xx = -1 + $i % 3;
-			$zz = -1 + (int) ($i / 3);
-			$ck = $level->getChunk($chunk->getX() + $xx, $chunk->getZ() + $zz, false);
-			$this->{"chunk$i"} = $ck !== null ? $ck->fastSerialize() : null;
+		foreach($level->getAdjacentChunks($chunk->getX(), $chunk->getZ()) as $i => $c){
+			$this->{"chunk$i"} = $c !== null ? $c->fastSerialize() : null;
 		}
 	}
 
@@ -151,9 +140,6 @@ class PopulationTask extends AsyncTask {
 		}
 	}
 
-	/**
-	 * @param Server $server
-	 */
 	public function onCompletion(Server $server){
 		$level = $server->getLevel($this->levelId);
 		if($level !== null){

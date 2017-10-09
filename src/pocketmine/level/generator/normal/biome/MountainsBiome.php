@@ -19,16 +19,15 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\level\generator\normal\biome;
 
 use pocketmine\level\generator\populator\TallGrass;
 use pocketmine\level\generator\populator\Tree;
 
-class MountainsBiome extends GrassyBiome {
+class MountainsBiome extends GrassyBiome{
 
-	/**
-	 * MountainsBiome constructor.
-	 */
 	public function __construct(){
 		parent::__construct();
 
@@ -37,7 +36,7 @@ class MountainsBiome extends GrassyBiome {
 		$this->addPopulator($trees);
 
 		$tallGrass = new TallGrass();
-		$tallGrass->setBaseAmount(6);
+		$tallGrass->setBaseAmount(1);
 
 		$this->addPopulator($tallGrass);
 
@@ -49,9 +48,6 @@ class MountainsBiome extends GrassyBiome {
 		$this->rainfall = 0.5;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName() : string{
 		return "Mountains";
 	}

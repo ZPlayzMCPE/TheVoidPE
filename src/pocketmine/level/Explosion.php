@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,13 +15,17 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
+
+declare(strict_types=1);
 
 namespace pocketmine\level;
 
 use pocketmine\block\Block;
+use pocketmine\block\BlockFactory;
+use pocketmine\block\TNT;
 use pocketmine\entity\Entity;
 use pocketmine\event\block\BlockUpdateEvent;
 use pocketmine\event\entity\EntityDamageByBlockEvent;
@@ -29,20 +33,15 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityExplodeEvent;
 use pocketmine\item\Item;
+use pocketmine\level\format\SubChunkInterface;
 use pocketmine\level\particle\HugeExplodeSeedParticle;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Math;
 use pocketmine\math\Vector3;
-use pocketmine\nbt\tag\ByteTag;
-use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\nbt\tag\DoubleTag;
-use pocketmine\nbt\tag\FloatTag;
-use pocketmine\nbt\tag\ListTag;
 use pocketmine\network\mcpe\protocol\ExplodePacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
-use pocketmine\utils\Random;
 
-class Explosion {
+class Explosion{
 
 	private $rays = 16; //Rays
 	public $level;
@@ -55,22 +54,12 @@ class Explosion {
 	public $stepLen = 0.3;
 	/** @var Entity|Block */
 	private $what;
-	private $dropItem;
 
-	/**
-	 * Explosion constructor.
-	 *
-	 * @param Position $center
-	 * @param          $size
-	 * @param null     $what
-	 * @param bool     $dropItem
-	 */
-	public function __construct(Position $center, $size, $what = null, bool $dropItem = true){
+	public function __construct(Position $center, $size, $what = null){
 		$this->level = $center->getLevel();
 		$this->source = $center;
 		$this->size = max($size, 0);
 		$this->what = $what;
-		$this->dropItem = $dropItem;
 	}
 
 	/**
@@ -82,9 +71,16 @@ class Explosion {
 		}
 
 		$vector = new Vector3(0, 0, 0);
-		$vBlock = new Vector3(0, 0, 0);
+		$vBlock = new Position(0, 0, 0, $this->level);
 
-		$mRays = intval($this->rays - 1);
+		$currentX = ((int) $this->source->x) >> 4;
+		$currentZ = ((int) $this->source->z) >> 4;
+		$currentChunk = $this->level->getChunk($currentX, $currentZ, true);
+
+		$currentSubY = ((int) $this->source->y) >> 4;
+		$currentSubChunk = $currentChunk->getSubChunk($currentSubY);
+
+		$mRays = (int) ($this->rays - 1);
 		for($i = 0; $i < $this->rays; ++$i){
 			for($j = 0; $j < $this->rays; ++$j){
 				for($k = 0; $k < $this->rays; ++$k){
@@ -102,19 +98,37 @@ class Explosion {
 							$vBlock->x = $pointerX >= $x ? $x : $x - 1;
 							$vBlock->y = $pointerY >= $y ? $y : $y - 1;
 							$vBlock->z = $pointerZ >= $z ? $z : $z - 1;
-							if($vBlock->y < 0 or $vBlock->y >= Level::Y_MAX){
-								break;
-							}
-							$block = $this->level->getBlock($vBlock);
 
-							if($block->getId() !== 0){
-								$blastForce -= ($block->getResistance() / 5 + 0.3) * $this->stepLen;
+
+							if(($vBlock->x >> 4) !== $currentX or ($vBlock->z >> 4) !== $currentZ){
+								$currentX = $vBlock->x >> 4;
+								$currentZ = $vBlock->z >> 4;
+
+								$currentChunk = $this->level->getChunk($currentX, $currentZ);
+								if($currentChunk === null){
+									continue;
+								}
+							}
+
+							if(($vBlock->y >> 4) !== $currentSubY){
+								$currentSubY = $vBlock->y >> 4;
+								$currentSubChunk = $currentChunk->getSubChunk($currentSubY);
+								if($currentSubChunk === null){
+									continue;
+								}
+							}
+
+							$blockId = $currentSubChunk->getBlockId($vBlock->x & 0x0f, $vBlock->y & 0x0f, $vBlock->z & 0x0f);
+
+							if($blockId !== 0){
+								$blastForce -= (BlockFactory::$blastResistance[$blockId] / 5 + 0.3) * $this->stepLen;
 								if($blastForce > 0){
-									if(!isset($this->affectedBlocks[$index = Level::blockHash($block->x, $block->y, $block->z)])){
-										$this->affectedBlocks[$index] = $block;
+									if(!isset($this->affectedBlocks[$index = Level::blockHash($vBlock->x, $vBlock->y, $vBlock->z)])){
+										$this->affectedBlocks[$index] = BlockFactory::get($blockId, $currentSubChunk->getBlockData($vBlock->x & 0x0f, $vBlock->y & 0x0f, $vBlock->z & 0x0f), $vBlock);
 									}
 								}
 							}
+
 							$pointerX += $vector->x;
 							$pointerY += $vector->y;
 							$pointerZ += $vector->z;
@@ -127,9 +141,6 @@ class Explosion {
 		return true;
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function explodeB() : bool{
 		$send = [];
 		$updateBlocks = [];
@@ -176,9 +187,7 @@ class Explosion {
 					$ev = new EntityDamageEvent($entity, EntityDamageEvent::CAUSE_BLOCK_EXPLOSION, $damage);
 				}
 
-				if($entity->attack($ev->getFinalDamage(), $ev) === true){
-					$ev->useArmors();
-				}
+				$entity->attack($ev->getFinalDamage(), $ev);
 				$entity->setMotion($motion->multiply($impact));
 			}
 		}
@@ -187,29 +196,11 @@ class Explosion {
 		$air = Item::get(Item::AIR);
 
 		foreach($this->affectedBlocks as $block){
-			if($block->getId() === Block::TNT){
-				$mot = (new Random())->nextSignedFloat() * M_PI * 2;
-				$tnt = Entity::createEntity("PrimedTNT", $this->level, new CompoundTag("", [
-					"Pos" => new ListTag("Pos", [
-						new DoubleTag("", $block->x + 0.5),
-						new DoubleTag("", $block->y),
-						new DoubleTag("", $block->z + 0.5)
-					]),
-					"Motion" => new ListTag("Motion", [
-						new DoubleTag("", -sin($mot) * 0.02),
-						new DoubleTag("", 0.2),
-						new DoubleTag("", -cos($mot) * 0.02)
-					]),
-					"Rotation" => new ListTag("Rotation", [
-						new FloatTag("", 0),
-						new FloatTag("", 0)
-					]),
-					"Fuse" => new ByteTag("Fuse", mt_rand(10, 30))
-				]));
-				$tnt->spawnToAll();
-			}elseif($this->dropItem and mt_rand(0, 100) < $yield){
+			if($block instanceof TNT){
+				$block->ignite(mt_rand(10, 30));
+			}elseif(mt_rand(0, 100) < $yield){
 				foreach($block->getDrops($air) as $drop){
-					$this->level->dropItem($block->add(0.5, 0.5, 0.5), Item::get(...$drop));
+					$this->level->dropItem($block->add(0.5, 0.5, 0.5), $drop);
 				}
 			}
 
@@ -217,8 +208,11 @@ class Explosion {
 
 			$pos = new Vector3($block->x, $block->y, $block->z);
 
-			for($side = 0; $side < 5; $side++){
+			for($side = 0; $side <= 5; $side++){
 				$sideBlock = $pos->getSide($side);
+				if(!$this->level->isInWorld($sideBlock->x, $sideBlock->y, $sideBlock->z)){
+					continue;
+				}
 				if(!isset($this->affectedBlocks[$index = Level::blockHash($sideBlock->x, $sideBlock->y, $sideBlock->z)]) and !isset($updateBlocks[$index])){
 					$this->level->getServer()->getPluginManager()->callEvent($ev = new BlockUpdateEvent($this->level->getBlock($sideBlock)));
 					if(!$ev->isCancelled()){
@@ -231,9 +225,7 @@ class Explosion {
 		}
 
 		$pk = new ExplodePacket();
-		$pk->x = $this->source->x;
-		$pk->y = $this->source->y;
-		$pk->z = $this->source->z;
+		$pk->position = $this->source->asVector3();
 		$pk->radius = $this->size;
 		$pk->records = $send;
 		$this->level->addChunkPacket($source->x >> 4, $source->z >> 4, $pk);

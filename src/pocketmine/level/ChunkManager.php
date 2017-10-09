@@ -25,7 +25,7 @@ namespace pocketmine\level;
 
 use pocketmine\level\format\Chunk;
 
-interface ChunkManager {
+interface ChunkManager{
 	/**
 	 * Gets the raw block id.
 	 *
@@ -69,34 +69,46 @@ interface ChunkManager {
 	public function setBlockDataAt(int $x, int $y, int $z, int $data);
 
 	/**
-	 * Gets the raw block light level
+	 * Returns the raw block light level
 	 *
 	 * @param int $x
 	 * @param int $y
 	 * @param int $z
 	 *
-	 * @return int 0-15
+	 * @return int
 	 */
 	public function getBlockLightAt(int $x, int $y, int $z) : int;
 
 	/**
-	 * Updates the light around the block
-	 *
-	 * @param $x
-	 * @param $y
-	 * @param $z
-	 */
-	public function updateBlockLight(int $x, int $y, int $z);
-
-	/**
-	 * Sets the raw block light level.
+	 * Sets the raw block light level
 	 *
 	 * @param int $x
 	 * @param int $y
 	 * @param int $z
-	 * @param int $level 0-15
+	 * @param int $level
 	 */
 	public function setBlockLightAt(int $x, int $y, int $z, int $level);
+
+	/**
+	 * Returns the highest amount of sky light can reach the specified coordinates.
+	 *
+	 * @param int $x
+	 * @param int $y
+	 * @param int $z
+	 *
+	 * @return int
+	 */
+	public function getBlockSkyLightAt(int $x, int $y, int $z) : int;
+
+	/**
+	 * Sets the raw block sky light level.
+	 *
+	 * @param int $x
+	 * @param int $y
+	 * @param int $z
+	 * @param int $level
+	 */
+	public function setBlockSkyLightAt(int $x, int $y, int $z, int $level);
 
 	/**
 	 * @param int $chunkX
@@ -107,16 +119,34 @@ interface ChunkManager {
 	public function getChunk(int $chunkX, int $chunkZ);
 
 	/**
-	 * @param int   $chunkX
-	 * @param int   $chunkZ
-	 * @param Chunk $chunk
+	 * @param int        $chunkX
+	 * @param int        $chunkZ
+	 * @param Chunk|null $chunk
 	 */
 	public function setChunk(int $chunkX, int $chunkZ, Chunk $chunk = null);
 
 	/**
 	 * Gets the level seed
 	 *
-	 * @return int|string
+	 * @return int
 	 */
-	public function getSeed();
+	public function getSeed() : int;
+
+	/**
+	 * Returns the height of the world
+	 * @return int
+	 */
+	public function getWorldHeight() : int;
+
+	/**
+	 * Returns whether the specified coordinates are within the valid world boundaries, taking world format limitations
+	 * into account.
+	 *
+	 * @param float $x
+	 * @param float $y
+	 * @param float $z
+	 *
+	 * @return bool
+	 */
+	public function isInWorld(float $x, float $y, float $z) : bool;
 }

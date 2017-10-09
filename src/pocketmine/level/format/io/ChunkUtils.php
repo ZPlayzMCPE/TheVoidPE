@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\level\format\io;
 
-class ChunkUtils {
+class ChunkUtils{
 
 	/**
 	 * Re-orders a byte array (YZX -> XZY and vice versa)
@@ -32,7 +32,7 @@ class ChunkUtils {
 	 *
 	 * @return string length 4096
 	 */
-	public static final function reorderByteArray(string $array) : string{
+	final public static function reorderByteArray(string $array) : string{
 		$result = str_repeat("\x00", 4096);
 		if($array !== $result){
 			$i = 0;
@@ -54,12 +54,12 @@ class ChunkUtils {
 	/**
 	 * Re-orders a nibble array (YZX -> XZY and vice versa)
 	 *
-	 * @param string $array       length 2048
+	 * @param string $array length 2048
 	 * @param string $commonValue length 1 common value to fill the default array with and to expect, may improve sort time
 	 *
 	 * @return string length 2048
 	 */
-	public static final function reorderNibbleArray(string $array, string $commonValue = "\x00") : string{
+	final public static function reorderNibbleArray(string $array, string $commonValue = "\x00") : string{
 		$result = str_repeat($commonValue, 2048);
 
 		if($array !== $result){
@@ -75,7 +75,7 @@ class ChunkUtils {
 						}else{
 							$i1 = ord($array{$j});
 							$i2 = ord($array{$j80});
-							$result{$i} = chr(($i2 << 4) | ($i1 & 0x0f));
+							$result{$i}        = chr(($i2 << 4) | ($i1 & 0x0f));
 							$result{$i | 0x80} = chr(($i1 >> 4) | ($i2 & 0xf0));
 						}
 						$i++;
