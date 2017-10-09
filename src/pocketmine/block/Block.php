@@ -562,13 +562,13 @@ class Block extends Position implements BlockIds, Metadatable{
 		return MovingObjectPosition::fromBlock($this->x, $this->y, $this->z, $f, $vector->add($this->x, $this->y, $this->z));
 	}
 
-	public function setMetadata(string $metadataKey, MetadataValue $newMetadataValue){
+	public function setMetadata($metadataKey, MetadataValue $newMetadataValue){
 		if($this->getLevel() instanceof Level){
 			$this->getLevel()->getBlockMetadata()->setMetadata($this, $metadataKey, $newMetadataValue);
 		}
 	}
 
-	public function getMetadata(string $metadataKey){
+	public function getMetadata($metadataKey){
 		if($this->getLevel() instanceof Level){
 			return $this->getLevel()->getBlockMetadata()->getMetadata($this, $metadataKey);
 		}
@@ -576,7 +576,7 @@ class Block extends Position implements BlockIds, Metadatable{
 		return null;
 	}
 
-	public function hasMetadata(string $metadataKey) : bool{
+	public function hasMetadata($metadataKey) : bool{
 		if($this->getLevel() instanceof Level){
 			return $this->getLevel()->getBlockMetadata()->hasMetadata($this, $metadataKey);
 		}
@@ -584,7 +584,7 @@ class Block extends Position implements BlockIds, Metadatable{
 		return false;
 	}
 
-	public function removeMetadata(string $metadataKey, Plugin $owningPlugin){
+	public function removeMetadata($metadataKey, Plugin $owningPlugin){
 		if($this->getLevel() instanceof Level){
 			$this->getLevel()->getBlockMetadata()->removeMetadata($this, $metadataKey, $owningPlugin);
 		}
