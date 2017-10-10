@@ -78,9 +78,9 @@ namespace pocketmine {
 	use pocketmine\wizard\SetupWizard;
 	use raklib\RakLib;
 
-	const VERSION = "1.2.0";
+	const VERSION = "1.2.";
 	const API_VERSION = "3.0.0";
-	const CODENAME = "Pumpkin Pie";
+	const CODENAME = "Void";
 
 	/*
 	 * Startup code. Do not look at it, it may harm you.
@@ -504,7 +504,7 @@ namespace pocketmine {
 
 
 		if(\Phar::running(true) === ""){
-			$logger->warning("Non-packaged Prismarine installation detected, do not use on production.");
+			$logger->warning("Non-packaged TheVoidPE installation detected, do not use on production.");
 		}
 
 		ThreadManager::init();
