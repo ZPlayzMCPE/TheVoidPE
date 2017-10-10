@@ -74,6 +74,8 @@ class SessionManager{
 
 	public $portChecking = true;
 
+	protected $serverId;
+
 	public function __construct(RakLibServer $server, UDPServerSocket $socket){
 		$this->server = $server;
 		$this->socket = $socket;
@@ -124,7 +126,6 @@ class SessionManager{
 			}
 		}
 		$this->ipSec = [];
-
 
 
 		if(($this->ticks & 0b1111) === 0){
@@ -191,6 +192,7 @@ class SessionManager{
 					$this->streamRaw($source, $port, $buffer);
 				}
 			}
+
 			return true;
 		}
 
@@ -314,7 +316,6 @@ class SessionManager{
 			}elseif($id === RakLib::PACKET_UNBLOCK_ADDRESS){
 				$len = ord($packet{$offset++});
 				$address = substr($packet, $offset, $len);
-				$offset += $len;
 				$this->unblockAddress($address);
 			}elseif($id === RakLib::PACKET_SHUTDOWN){
 				foreach($this->sessions as $session){
@@ -349,13 +350,14 @@ class SessionManager{
 		}
 	}
 
-	public function unblockAddress($address){
+	public function unblockAddress(string $address){
 		unset($this->block[$address]);
+		$this->getLogger()->debug("Unblocked $address");
 	}
 
 	/**
 	 * @param string $ip
-	 * @param int	$port
+	 * @param int    $port
 	 *
 	 * @return Session
 	 */
@@ -401,7 +403,7 @@ class SessionManager{
 	/**
 	 * @param $id
 	 *
-	 * @return Packet
+	 * @return Packet|null
 	 */
 	public function getPacketFromPool($id){
 		if(isset($this->packetPool[$id])){
