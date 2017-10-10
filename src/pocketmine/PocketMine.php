@@ -77,8 +77,9 @@ namespace pocketmine {
 	use pocketmine\utils\Utils;
 	use pocketmine\wizard\SetupWizard;
 	use raklib\RakLib;
-
-	const VERSION = "1.2.";
+	
+    const NAME = "TheVoidPE";
+	const VERSION = "1.2";
 	const API_VERSION = "3.0.0";
 	const CODENAME = "Void";
 
